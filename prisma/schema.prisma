@@ -1,0 +1,256 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Модель категорий
+model Category {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String?
+  image         String?
+  parentId      String?
+  parent        Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children      Category[] @relation("CategoryHierarchy")
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+  
+  // Связи
+  products      Product[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+// Модель брендов
+model Brand {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  logo          String?
+  description   String?
+  website       String?
+  isActive      Boolean   @default(true)
+  
+  // Связи
+  products      Product[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("brands")
+}
+
+// Модель тегов
+model ProductTag {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  color         String?
+  
+  // Связи
+  products      ProductTagRelation[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("product_tags")
+}
+
+// Модель товаров
+model Product {
+  id                String    @id @default(cuid())
+  name              String
+  slug              String    @unique
+  description       String?
+  shortDescription  String?
+  sku               String    @unique
+  price             Float
+  oldPrice          Float?
+  isNew             Boolean   @default(false)
+  isFeatured        Boolean   @default(false)
+  isAvailable       Boolean   @default(true)
+  stock             Int       @default(0)
+  minOrder          Int       @default(1)
+  weight            Float?
+  
+  // Размеры (JSON)
+  dimensions        Json?
+  
+  // Изображения (JSON массив URL)
+  images            String
+  
+  // SEO
+  seoTitle          String?
+  seoDescription    String?
+  seoKeywords       String?
+  
+  // Статистика
+  viewCount         Int       @default(0)
+  
+  // Связи
+  categoryId        String
+  category          Category  @relation(fields: [categoryId], references: [id])
+  
+  brandId           String?
+  brand             Brand?    @relation(fields: [brandId], references: [id])
+  
+  specifications    ProductSpecification[]
+  tags              ProductTagRelation[]
+  orderItems        OrderItem[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("products")
+}
+
+// Модель характеристик товаров
+model ProductSpecification {
+  id            String    @id @default(cuid())
+  name          String
+  value         String
+  group         String?
+  sortOrder     Int       @default(0)
+  
+  // Связи
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("product_specifications")
+}
+
+// Связующая таблица для товаров и тегов
+model ProductTagRelation {
+  id            String      @id @default(cuid())
+  
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  tagId         String
+  tag           ProductTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime    @default(now())
+
+  @@unique([productId, tagId])
+  @@map("product_tag_relations")
+}
+
+// Модель заказов
+model Order {
+  id                String      @id @default(cuid())
+  orderNumber       String      @unique
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  company           String?
+  total             Float
+  status            OrderStatus @default(PENDING)
+  paymentMethod     String?
+  deliveryMethod    String?
+  deliveryAddress   String?
+  notes             String?
+  
+  // Связи
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id])
+  items             OrderItem[]
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+// Модель позиций заказа
+model OrderItem {
+  id            String    @id @default(cuid())
+  quantity      Int
+  price         Float
+  total         Float
+  
+  // Связи
+  orderId       String
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id])
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("order_items")
+}
+
+// Модель заявок обратной связи
+model ContactRequest {
+  id            String    @id @default(cuid())
+  name          String
+  email         String?
+  phone         String
+  company       String?
+  message       String
+  equipment     String?
+  status        ContactStatus @default(NEW)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("contact_requests")
+}
+
+// Енумы
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ContactStatus {
+  NEW
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// Модель пользователей
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  phone         String?
+  password      String?   // Хэш пароля (опционально для демо)
+  role          UserRole  @default(USER)
+  isActive      Boolean   @default(true)
+  
+  // Связи
+  orders        Order[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users")
+}
+
+// Роли пользователей
+enum UserRole {
+  USER
+  ADMIN
+  MANAGER
+}
