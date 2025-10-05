@@ -5,8 +5,13 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
+    "start:prod": "NODE_ENV=production node ./.next/standalone/server.js",
+    "docker:build": "docker build -t stp-service:prod .",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
@@ -15,6 +20,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force",
@@ -49,12 +55,15 @@
     "@modelcontextprotocol/sdk": "^1.18.0",
     "@prisma/client": "^6.15.0",
     "clsx": "^2.1.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
     "next": "^14.0.0",
     "next-auth": "^4.24.11",
     "node-fetch": "^3.3.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "zod": "^3.23.8"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next'
 import { SITE_CONFIG } from '@/lib/constants'
+import { prisma } from '@/lib/prisma'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_CONFIG.url
 
   // Статические страницы
@@ -38,17 +39,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  // TODO: Добавить динамические страницы товаров
-  // const products = await getProducts()
-  // const productPages = products.map(product => ({
-  //   url: `${baseUrl}/products/${product.slug}`,
-  //   lastModified: new Date(product.updatedAt),
-  //   changeFrequency: 'weekly' as const,
-  //   priority: 0.6,
-  // }))
+  // Динамические страницы категорий
+  const categories = await prisma.category.findMany({
+    select: { slug: true, updatedAt: true, isActive: true },
+    where: { isActive: true },
+    orderBy: { sortOrder: 'asc' },
+  })
+  const categoryPages = categories.map((c) => ({
+    url: `${baseUrl}/catalog/${c.slug}`,
+    lastModified: c.updatedAt,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
 
   return [
     ...staticPages,
-    // ...productPages,
+    ...categoryPages,
   ]
 }

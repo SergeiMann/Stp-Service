@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+import { rateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
+
+const contactSchema = z.object({
+  name: z.string().min(2).max(100),
+  phone: z.string().min(10).max(32),
+  email: z.string().email().optional(),
+  company: z.string().max(100).optional(),
+  message: z.string().min(5).max(2000),
+  equipment: z.string().max(100).optional(),
+})
+
+const limiter = rateLimit({ intervalMs: 60_000, uniqueTokenPerInterval: 1000 })
 
 interface ContactFormData {
   name: string
@@ -14,44 +27,19 @@ interface ContactFormData {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ContactFormData = await request.json()
-    
-    // Валидация обязательных полей
-    if (!body.name || !body.phone || !body.message) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Заполните все обязательные поля' 
-        },
-        { status: 400 }
-      )
+    const ip = request.headers.get('x-forwarded-for') || 'unknown'
+    try {
+      await limiter.check(ip, 10)
+    } catch {
+      return NextResponse.json({ success: false, error: 'Слишком много запросов' }, { status: 429 })
     }
-    
-    // Валидация телефона (простая)
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/
-    if (!phoneRegex.test(body.phone)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Некорректный формат телефона' 
-        },
-        { status: 400 }
-      )
+
+    const json = await request.json()
+    const parsed = contactSchema.safeParse(json)
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, error: 'Некорректные данные' }, { status: 400 })
     }
-    
-    // Валидация email (если указан)
-    if (body.email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(body.email)) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Некорректный формат email' 
-          },
-          { status: 400 }
-        )
-      }
-    }
+    const body = parsed.data
     
     // Сохранение заявки в базу данных
     const contactRequest = await prisma.contactRequest.create({
@@ -96,13 +84,17 @@ export async function POST(request: NextRequest) {
 }
 
 // Получение заявок (для админ панели)
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const adminKey = process.env.ADMIN_API_KEY
+    const headerKey = request.headers.get('x-admin-key')
+    if (!adminKey || headerKey !== adminKey) {
+      return NextResponse.json({ success: false, error: 'forbidden' }, { status: 403 })
+    }
+
     const requests = await prisma.contactRequest.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: 50 // Последние 50 заявок
+      orderBy: { createdAt: 'desc' },
+      take: 50,
     })
 
     const formattedRequests = requests.map(request => ({
@@ -118,10 +110,7 @@ export async function GET() {
       updatedAt: request.updatedAt.toISOString()
     }))
 
-    return NextResponse.json({
-      success: true,
-      data: formattedRequests
-    })
+    return NextResponse.json({ success: true, data: formattedRequests })
     
   } catch (error) {
     console.error('Contact GET API Error:', error)

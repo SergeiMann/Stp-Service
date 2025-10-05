@@ -1,6 +1,7 @@
 import { SITE_CONFIG } from '@/lib/constants'
 import { generateSEO } from '@/lib/utils'
 import { Metadata } from 'next'
+import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { ScrollToTop } from '@/components/ui/ScrollToTop'
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
     description: 'Профессиональный ремонт и обслуживание торгового оборудования. Быстро, качественно, с гарантией. Ремонт терминалов, сканеров штрих-кодов, принтеров этикеток.',
   })
 }
+
+export const revalidate = 60
 
 export default function HomePage() {
   return (
@@ -60,10 +63,13 @@ export default function HomePage() {
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-lg overflow-hidden">
-                <img 
+                <Image 
                   src="/images/brands/logo.svg" 
                   alt="СТП-Сервис"
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
+                  sizes="40px"
+                  priority
                 />
               </div>
               <div>
@@ -226,10 +232,13 @@ export default function HomePage() {
             {/* Центральная колонка - Изображение (занимает 2 колонки) */}
             <div className="lg:col-span-2 flex justify-center">
               <div className="relative w-full max-w-xl">
-                <img 
+                <Image 
                   src="/images/equipment/product_16779-no-bg-preview (carve.photos).png" 
                   alt="Шкаф Инлокер - автоматизированная система хранения оборудования"
+                  width={800}
+                  height={800}
                   className="w-full h-auto object-contain drop-shadow-2xl"
+                  priority={false}
                 />
               </div>
             </div>

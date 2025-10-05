@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: stp
+      POSTGRES_PASSWORD: change_me
+      POSTGRES_DB: stp
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stp -d stp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    image: stp-service:prod
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      DATABASE_URL: postgresql://stp:change_me@db:5432/stp?schema=public
+      ADMIN_API_KEY: ${ADMIN_API_KEY}
+    ports:
+      - "3000:3000"
+
+  backup:
+    image: prodrigestivill/postgres-backup-local:16
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: stp
+      POSTGRES_USER: stp
+      POSTGRES_PASSWORD: change_me
+      SCHEDULE: "0 3 * * *"
+      BACKUP_DIR: /backups
+      POSTGRES_EXTRA_OPTS: "-Z9"
+    volumes:
+      - pgbackups:/backups
+
+volumes:
+  pgdata:
+  pgbackups:
+

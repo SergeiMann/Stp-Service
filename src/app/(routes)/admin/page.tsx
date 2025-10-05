@@ -1,3 +1,15 @@
+// Server-protected wrapper for Admin page
+import { requireAdmin } from '@/lib/auth'
+
+export const dynamic = 'force-dynamic'
+
+export default function AdminProtectedPage() {
+  // Throws if not admin
+  requireAdmin()
+  // Render client component
+  return <AdminPageClient />
+}
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -53,7 +65,7 @@ interface Order {
   }[]
 }
 
-export default function AdminPage() {
+function AdminPageClient() {
   const router = useRouter()
   const { user, loading: authLoading, isAdmin } = useAuth()
   const [activeTab, setActiveTab] = useState<'requests' | 'products' | 'orders'>('requests')
