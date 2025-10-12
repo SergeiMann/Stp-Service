@@ -26,15 +26,20 @@ export default function HomePage() {
         <div className="absolute inset-0 z-0">
           {/* Zebra Scanners Background */}
           <div 
-            className="w-full h-full bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url('/images/zebra-ds8178-vs-zebra-ds2208-2.png')`
-            }}
+            className="w-full h-full relative"
           >
-            {/* Multi-layer overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-800/85 to-slate-900/95"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-transparent to-slate-900/90"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-slate-800/70"></div>
+            <Image 
+              src="/images/zebra-ds8178-vs-zebra-ds2208-2.png"
+              alt="Сканеры Zebra DS8178 и DS2208 на фоне склада"
+              fill
+              className="object-cover object-center"
+              priority
+              sizes="100vw"
+            />
+            {/* Multi-layer overlay for better text readability (ослаблено) */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/70 via-slate-800/60 to-slate-900/80"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-transparent to-slate-900/70"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-slate-800/50"></div>
             
             {/* Tech Pattern Overlay */}
             <div className="absolute inset-0 opacity-15">
@@ -53,7 +58,7 @@ export default function HomePage() {
             </div>
             
             {/* Subtle glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 animate-pulse"></div>
           </div>
         </div>
 

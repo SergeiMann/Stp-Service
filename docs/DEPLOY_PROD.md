@@ -43,10 +43,14 @@ sudo usermod -aG docker $USER
 NEXTAUTH_SECRET=замени_на_длинную_случайную_строку
 NEXT_PUBLIC_SITE_URL=https://stp-service.com
 ADMIN_API_KEY=секрет_для_admin_API
+POSTGRES_PASSWORD=сильный_пароль_для_postgres
+# Пароли для dev-seed (используются seed-сервисом с NODE_ENV=development)
+SEED_ADMIN_PASSWORD=admin123
+SEED_MANAGER_PASSWORD=manager123
 ```
 
 Примечания:
-- `DATABASE_URL` для приложения задаётся внутри `docker-compose.yml` и указывает на контейнер `db`.
+- `DATABASE_URL` прокидывается в `web` через Compose и указывает на контейнер `db`.
 - Схема БД: PostgreSQL (см. `prisma/schema.prisma`).
 
 ## Docker Compose стек (web + db + backup)
@@ -59,23 +63,17 @@ ADMIN_API_KEY=секрет_для_admin_API
 ```bash
 # В каталоге проекта
 npm run docker:build
-npm run docker:up
-
-# Применить миграции Prisma внутри контейнера web
-docker compose exec web npm run db:deploy
+npm run docker:up  # автоматически запустятся migrate -> seed -> web
 
 # Healthcheck
 curl http://127.0.0.1:3000/api/health
 ```
 
 ### Автоподготовка и деплой одной командой
+На чистой ВМ (Ubuntu LTS) можно использовать скрипт:
 ```bash
-sudo bash ./scripts/setup_and_deploy.sh --domain stp-service.com --email admin@stp-service.com
+sudo bash ./scripts/start.sh --domain stp-service.com --email admin@stp-service.com
 ```
-Флаги:
-- `--domain` — домен (обязательно)
-- `--email` — email для Certbot (обязательно, если не передан `--no-certbot`)
-- `--no-certbot` — пропустить выдачу TLS-сертификата
 
 ## Nginx реверс-прокси + HTTPS
 Файл `/etc/nginx/sites-available/stp-service`:
@@ -117,7 +115,9 @@ sudo certbot --nginx -d stp-service.com -m admin@stp-service.com --agree-tos -n
 # Обновить образ/приложение
 npm run docker:build
 docker compose up -d --no-deps web
-docker compose exec web npm run db:deploy
+# при необходимости перезапустить миграции/сидинг вручную:
+docker compose run --rm migrate
+docker compose run --rm seed
 
 # Перезапуск/стоп
 docker compose restart web

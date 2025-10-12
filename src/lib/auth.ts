@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
+import type { SignOptions, Secret } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
-import { env, isProd } from '@/lib/env'
+import { env } from '@/lib/env'
 
 export type JwtPayload = {
   uid: string
@@ -8,10 +9,12 @@ export type JwtPayload = {
   email: string
 }
 
-const getSecret = () => env.NEXTAUTH_SECRET || 'CHANGE_ME_STRONG_SECRET'
+const getSecret = (): Secret => (env.NEXTAUTH_SECRET || 'CHANGE_ME_STRONG_SECRET') as Secret
 
 export function signJwt(payload: JwtPayload, expiresIn: string | number = '7d') {
-  return jwt.sign(payload, getSecret(), { expiresIn })
+  const options: SignOptions = {}
+  ;(options as any).expiresIn = expiresIn as any
+  return jwt.sign(payload, getSecret(), options)
 }
 
 export function verifyJwt(token: string): JwtPayload | null {

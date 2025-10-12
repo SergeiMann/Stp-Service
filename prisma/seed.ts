@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { productCategories as categories } from '../src/data/categories'
 import { popularBrands as brands } from '../src/data/brands'
 import { sampleProducts as products } from '../src/data/products'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -138,27 +139,33 @@ async function main() {
 
   // Создание тестовых пользователей
   console.log('👤 Создание пользователей...')
-  await prisma.user.create({
-    data: {
-      email: 'admin@stp-service.ru',
-      name: 'Администратор',
-      phone: '+7 (495) 255-08-54',
-      password: 'admin123', // Простой пароль для демо
-      role: 'ADMIN',
-      isActive: true,
-    },
-  })
+  // В продакшне не создаём пользователей с дефолтными паролями
+  const isProd = process.env.NODE_ENV === 'production'
+  if (!isProd) {
+    const adminHash = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'admin123', 12)
+    await prisma.user.create({
+      data: {
+        email: 'admin@stp-service.ru',
+        name: 'Администратор',
+        phone: '+7 (495) 255-08-54',
+        password: adminHash,
+        role: 'ADMIN',
+        isActive: true,
+      },
+    })
 
-  await prisma.user.create({
-    data: {
-      email: 'manager@stp-service.ru', 
-      name: 'Менеджер',
-      phone: '+7 (495) 255-08-55',
-      password: 'manager123', // Простой пароль для демо
-      role: 'MANAGER',
-      isActive: true,
-    },
-  })
+    const managerHash = await bcrypt.hash(process.env.SEED_MANAGER_PASSWORD || 'manager123', 12)
+    await prisma.user.create({
+      data: {
+        email: 'manager@stp-service.ru', 
+        name: 'Менеджер',
+        phone: '+7 (495) 255-08-55',
+        password: managerHash,
+        role: 'MANAGER',
+        isActive: true,
+      },
+    })
+  }
 
   console.log('✅ База данных успешно заполнена!')
 }

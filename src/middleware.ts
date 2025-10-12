@@ -9,15 +9,16 @@ export function middleware(_req: NextRequest) {
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
 
+  const isProd = process.env.NODE_ENV === 'production'
   const csp = [
     "default-src 'self'",
     "img-src 'self' data: https:",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline'",
+    isProd ? "script-src 'self'" : "script-src 'self' 'unsafe-inline'",
+    isProd ? "style-src 'self'" : "style-src 'self' 'unsafe-inline'",
     "connect-src 'self' https:",
     "font-src 'self' data:",
     "frame-ancestors 'none'",
-  ].join('; ')
+  ].filter(Boolean).join('; ')
 
   res.headers.set('Content-Security-Policy', csp)
   return res

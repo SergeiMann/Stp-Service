@@ -51,11 +51,17 @@ docker compose version || { echo "docker compose not found"; exit 1; }
 # Build image
 npm run docker:build
 
-# Start services
+# Start services (db -> migrate -> seed -> web)
 docker compose up -d
 
-echo "[5/7] Run Prisma migrations"
-docker compose exec -T web npm run db:deploy || true
+echo "[5/7] Wait for web health"
+for i in {1..30}; do
+  if curl -fsS http://127.0.0.1:3000/api/health >/dev/null 2>&1; then
+    echo "Web is healthy"
+    break
+  fi
+  sleep 2
+done
 
 echo "[6/7] Configure Nginx reverse proxy for $DOMAIN"
 NGINX_SITE=/etc/nginx/sites-available/stp-service
