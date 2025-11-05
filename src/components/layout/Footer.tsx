@@ -47,14 +47,11 @@ export function Footer() {
               Более 15 лет опыта работы с ведущими брендами.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://t.me/stp_sc_bot" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <i className="fab fa-telegram text-xl"></i>
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <i className="fab fa-whatsapp text-xl"></i>
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <i className="fab fa-vk text-xl"></i>
               </a>
             </div>
           </div>
@@ -111,7 +108,7 @@ export function Footer() {
               </div>
               <div className="flex items-center space-x-2">
                 <i className="fas fa-clock text-blue-400"></i>
-                <span className="text-gray-400">Ежедневно 9:00-21:00</span>
+                <span className="text-gray-400">пн-пт 10:00-19:00; сб, вс — выходной день</span>
               </div>
             </div>
           </div>

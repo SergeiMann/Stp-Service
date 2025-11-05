@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Модель категорий
@@ -30,6 +30,7 @@ model Category {
   updatedAt     DateTime  @updatedAt
 
   @@map("categories")
+  @@index([slug])
 }
 
 // Модель брендов
@@ -49,6 +50,7 @@ model Brand {
   updatedAt     DateTime  @updatedAt
 
   @@map("brands")
+  @@index([slug])
 }
 
 // Модель тегов
@@ -113,6 +115,8 @@ model Product {
   updatedAt         DateTime  @updatedAt
 
   @@map("products")
+  @@index([slug])
+  @@index([price])
 }
 
 // Модель характеристик товаров

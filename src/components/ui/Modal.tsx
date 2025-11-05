@@ -1,84 +1,60 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { cn } from '@/lib/utils'
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
-  children: ReactNode
-  className?: string
   title?: string
+  className?: string
+  children: React.ReactNode
 }
 
-export function Modal({ isOpen, onClose, children, className, title }: ModalProps) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [isOpen])
+export function Modal({ isOpen, onClose, title, className = '', children }: ModalProps) {
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose()
-      }
-    }
+    setIsMounted(true)
+  }, [])
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape)
-    }
+  if (!isMounted || !isOpen) return null
 
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }, [isOpen, onClose])
-
-  if (!isOpen) return null
-
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
+  const modal = (
+    <div className="fixed inset-0 z-[1000]">
       <div
-        className={cn(
-          'relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto',
-          className
-        )}
-      >
-        {/* Header */}
-        {title && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div
+          className={`relative w-full max-w-lg rounded-xl bg-white shadow-xl ring-1 ring-black/5 ${className}`}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+            <h3 className="text-base font-semibold text-gray-900">
+              {title}
+            </h3>
             <button
+              type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Закрыть"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <i className="fas fa-times"></i>
             </button>
           </div>
-        )}
-        
-        {/* Content */}
-        <div className={title ? 'p-6' : 'p-6'}>
-          {children}
+          <div className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+            {children}
+          </div>
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   )
+
+  return createPortal(modal, document.body)
 }
+
+ 

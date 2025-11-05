@@ -1,45 +1,45 @@
 {
   "pages": {
+    "/(routes)/contacts/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(routes)/contacts/page.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
+    "/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/loading.js"
     ],
-    "/(routes)/catalog/page": [
+    "/inlocker/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(routes)/catalog/page.js"
-    ],
-    "/(routes)/services/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(routes)/services/page.js"
+      "static/chunks/app/inlocker/page.js"
     ],
     "/(routes)/about/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(routes)/about/page.js"
     ],
-    "/(routes)/contacts/page": [
+    "/(routes)/services/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(routes)/contacts/page.js"
+      "static/chunks/app/(routes)/services/page.js"
     ],
-    "/(routes)/catalog/tsd/page": [
+    "/(routes)/catalog/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(routes)/catalog/tsd/page.js"
+      "static/chunks/app/(routes)/catalog/page.js"
     ],
-    "/(routes)/catalog/wifi/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(routes)/catalog/wifi/page.js"
+      "static/chunks/app/page.js"
     ]
   }
 }

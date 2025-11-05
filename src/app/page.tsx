@@ -1,9 +1,9 @@
 import { SITE_CONFIG } from '@/lib/constants'
 import { generateSEO } from '@/lib/utils'
 import { Metadata } from 'next'
+import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { ScrollToTop } from '@/components/ui/ScrollToTop'
 import { EquipmentCategories } from '@/components/catalog/EquipmentCategories'
 import Link from 'next/link'
 
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   })
 }
 
+export const revalidate = 60
+
 export default function HomePage() {
   return (
     <>
@@ -23,15 +25,20 @@ export default function HomePage() {
         <div className="absolute inset-0 z-0">
           {/* Zebra Scanners Background */}
           <div 
-            className="w-full h-full bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url('/images/zebra-ds8178-vs-zebra-ds2208-2.png')`
-            }}
+            className="w-full h-full relative"
           >
-            {/* Multi-layer overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-800/85 to-slate-900/95"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-transparent to-slate-900/90"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-slate-800/70"></div>
+            <Image 
+              src="/images/zebra-ds8178-vs-zebra-ds2208-2.png"
+              alt="Сканеры Zebra DS8178 и DS2208 на фоне склада"
+              fill
+              className="object-cover object-center"
+              priority
+              sizes="100vw"
+            />
+            {/* Multi-layer overlay for better text readability (ослаблено) */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/70 via-slate-800/60 to-slate-900/80"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-transparent to-slate-900/70"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-slate-800/50"></div>
             
             {/* Tech Pattern Overlay */}
             <div className="absolute inset-0 opacity-15">
@@ -50,7 +57,7 @@ export default function HomePage() {
             </div>
             
             {/* Subtle glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 animate-pulse"></div>
           </div>
         </div>
 
@@ -59,11 +66,14 @@ export default function HomePage() {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg overflow-hidden">
-                <img 
+              <div className="relative w-10 h-10 rounded-lg overflow-hidden">
+                <Image 
                   src="/images/brands/logo.svg" 
                   alt="СТП-Сервис"
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
+                  sizes="40px"
+                  priority
                 />
               </div>
               <div>
@@ -86,6 +96,9 @@ export default function HomePage() {
               <Link href="/about" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 О компании
               </Link>
+              <Link href="/inlocker" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                Инлокер
+              </Link>
               <Link href="/contacts" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 Контакты
               </Link>
@@ -94,13 +107,10 @@ export default function HomePage() {
             {/* Contact Info */}
             <div className="hidden lg:flex items-center space-x-6">
               <div className="text-right">
-                <div className="font-semibold text-white">+7 (495) 255-08-54</div>
-                <div className="text-sm text-gray-300">Ежедневно 9:00-21:00</div>
+                <div className="font-semibold text-white">{SITE_CONFIG.phone}</div>
+                <div className="text-sm text-gray-300">пн-пт 10:00-19:00</div>
               </div>
-              
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                Администратор
-              </Button>
+              {/* Кнопка администратора временно скрыта для прод-запуска */}
             </div>
 
             {/* Mobile menu button */}
@@ -144,9 +154,11 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                  Оставить заявку
-                </Button>
+                <Link href="/contacts">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                    Оставить заявку
+                  </Button>
+                </Link>
                 <Link href="/catalog">
                   <Button variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
                     Каталог товаров
@@ -226,10 +238,13 @@ export default function HomePage() {
             {/* Центральная колонка - Изображение (занимает 2 колонки) */}
             <div className="lg:col-span-2 flex justify-center">
               <div className="relative w-full max-w-xl">
-                <img 
+                <Image 
                   src="/images/equipment/product_16779-no-bg-preview (carve.photos).png" 
                   alt="Шкаф Инлокер - автоматизированная система хранения оборудования"
+                  width={800}
+                  height={800}
                   className="w-full h-auto object-contain drop-shadow-2xl"
+                  priority={false}
                 />
               </div>
             </div>
@@ -266,12 +281,16 @@ export default function HomePage() {
 
               {/* Кнопки действий */}
               <div className="space-y-3">
-                <Button size="md" className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-sm font-semibold">
-                  Узнать больше об Инлокер+
-                </Button>
-                <Button variant="outline" size="md" className="w-full border-white/30 text-white hover:bg-white/10 py-3 text-sm">
-                  Заказать консультацию
-                </Button>
+                <Link href="/inlocker">
+                  <Button size="md" className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-sm font-semibold">
+                    Узнать больше об Инлокер+
+                  </Button>
+                </Link>
+                <Link href="/contacts">
+                  <Button variant="outline" size="md" className="w-full border-white/30 text-white hover:bg-white/10 py-3 text-sm">
+                    Заказать консультацию
+                  </Button>
+                </Link>
               </div>
             </div>
 
@@ -279,30 +298,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Content after sections - сжатая область */}
-      <div className="bg-gradient-to-b from-slate-800 to-slate-600">
-        {/* Spacer to create smooth transition */}
-        <div className="h-8"></div>
-        
-        {/* Additional content area that leads to footer */}
-        <div className="container mx-auto px-4 py-8 text-center">
-          <div className="text-white">
-            <h3 className="text-xl font-bold mb-3">Готовы начать работу?</h3>
-            <p className="text-slate-300 mb-6 text-sm">Свяжитесь с нами для получения консультации</p>
-            <div className="flex justify-center gap-3">
-              <a href="tel:+74952550854" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition-colors text-sm">
-                Позвонить
-              </a>
-              <a href="/contacts" className="bg-transparent border border-white text-white hover:bg-white hover:text-slate-700 px-5 py-2 rounded-lg transition-colors text-sm">
-                Контакты
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* CTA-блок перед футером удален по запросу */}
 
-      {/* Scroll to Top Button */}
-      <ScrollToTop />
+      {/* Scroll to Top Button — удалено, есть глобальная версия в layout */}
     </>
   )
 }

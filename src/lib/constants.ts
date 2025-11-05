@@ -5,8 +5,8 @@ export const SITE_CONFIG = {
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
   phone: '+7 (495) 255-08-54',
   email: 'info@stp-service.com',
-  address: 'г. Москва',
-  workingHours: 'Пн-Пт: 9:00-18:00',
+  address: '127549, г. Москва, ул. Бибиревская, 2 к. 1',
+  workingHours: 'пн-пт 10:00-19:00; сб, вс — выходной день',
 } as const
 
 export const API_ROUTES = {

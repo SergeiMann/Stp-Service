@@ -83,7 +83,10 @@ export function EquipmentCategories() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto overflow-visible">
           {equipmentCategories.map((category) => (
-            <Link key={category.id} href={category.link}>
+            <Link
+              key={category.id}
+              href={{ pathname: '/catalog', query: { category: category.id } }}
+            >
               <Card className={`
                 group relative h-full transition-all duration-500 hover:-translate-y-2 cursor-pointer
                 ${category.highlighted 

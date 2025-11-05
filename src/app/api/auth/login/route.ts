@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,70 +45,68 @@ export async function POST(request: NextRequest) {
     })
     
     if (!user) {
-      // Для демо: создаем нового пользователя только если нет пароля
       if (!body.password) {
+        // демо-режим: создаём пользователя без пароля
         user = await prisma.user.create({
           data: {
             email: body.email.toLowerCase().trim(),
             name: body.name?.trim() || null,
             phone: body.phone?.trim() || null,
-            role: 'USER'
+            role: 'USER',
+            password: null,
           }
         })
-        
-        console.log('Новый пользователь создан:', {
-          id: user.id,
-          email: user.email,
-          name: user.name
-        })
       } else {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Пользователь не найден' 
-          },
-          { status: 401 }
-        )
+        // создаём с хэшированным паролем
+        const hash = await bcrypt.hash(body.password, 12)
+        user = await prisma.user.create({
+          data: {
+            email: body.email.toLowerCase().trim(),
+            name: body.name?.trim() || null,
+            phone: body.phone?.trim() || null,
+            role: 'USER',
+            password: hash,
+          }
+        })
       }
     } else {
-      // Проверка пароля для существующих пользователей
-      if (user.password && body.password !== user.password) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Неверный пароль' 
-          },
-          { status: 401 }
-        )
-      }
-      
       if (!user.isActive) {
         return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Аккаунт заблокирован' 
-          },
+          { success: false, error: 'Аккаунт заблокирован' },
           { status: 403 }
         )
       }
+
+      // Проверка пароля для существующих пользователей
+      if (user.password) {
+        if (!body.password) {
+          return NextResponse.json(
+            { success: false, error: 'Пароль обязателен' },
+            { status: 400 }
+          )
+        }
+        const ok = await bcrypt.compare(body.password, user.password)
+        if (!ok) {
+          return NextResponse.json(
+            { success: false, error: 'Неверный пароль' },
+            { status: 401 }
+          )
+        }
+      }
     }
     
-    // Создаем простую сессию (в реальном проекте использовать JWT или NextAuth)
-    const sessionData = {
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      timestamp: Date.now()
-    }
-    
-    // Устанавливаем cookie с сессией
-    const cookieStore = cookies()
-    cookieStore.set('session', JSON.stringify(sessionData), {
+    const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'CHANGE_ME_STRONG_SECRET'
+    const token = jwt.sign(
+      { uid: user.id, role: user.role, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    cookies().set('session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7 // 7 дней
+      maxAge: 60 * 60 * 24 * 7,
     })
     
     return NextResponse.json({

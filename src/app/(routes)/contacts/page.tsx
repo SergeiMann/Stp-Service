@@ -37,7 +37,7 @@ export default function ContactsPage() {
                     <a href={`tel:${SITE_CONFIG.phone}`} className="text-blue-300 hover:text-blue-200 font-medium text-lg transition-colors">
                       {SITE_CONFIG.phone}
                     </a>
-                    <div className="text-sm text-gray-400 mt-1">Ежедневно 9:00-21:00</div>
+                    <div className="text-sm text-gray-400 mt-1">пн-пт 10:00-19:00</div>
                   </div>
                 </div>
               </div>
@@ -66,10 +66,9 @@ export default function ContactsPage() {
                     <h3 className="font-semibold text-xl mb-2 text-white">Адрес</h3>
                     <p className="text-gray-300 mb-3">Приезжайте к нам в офис</p>
                     <div className="text-purple-300">
-                      г. Москва, ул. Примерная, д. 123<br/>
-                      офис 456
+                      {SITE_CONFIG.address}
                     </div>
-                    <div className="text-sm text-gray-400 mt-2">Пн-Пт: 9:00-18:00, Сб: 10:00-16:00</div>
+                    <div className="text-sm text-gray-400 mt-2">сб, вс — выходной день</div>
                   </div>
                 </div>
               </div>
@@ -83,7 +82,7 @@ export default function ContactsPage() {
                     <h3 className="font-semibold text-xl mb-2 text-white">Мессенджеры</h3>
                     <p className="text-gray-300 mb-3">Пишите в удобное время</p>
                     <div className="flex space-x-4">
-                      <a href="#" className="text-yellow-300 hover:text-yellow-200 transition-colors">
+                      <a href="https://t.me/stp_sc_bot" target="_blank" rel="noopener noreferrer" className="text-yellow-300 hover:text-yellow-200 transition-colors">
                         <i className="fab fa-telegram text-2xl"></i>
                       </a>
                       <a href="#" className="text-yellow-300 hover:text-yellow-200 transition-colors">
@@ -97,13 +96,44 @@ export default function ContactsPage() {
           </div>
 
           {/* Форма обратной связи */}
-          <div className="fade-in-right">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+          <div className="fade-in-right h-full">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 h-full flex flex-col">
               <h2 className="text-3xl font-bold mb-6 text-white">Отправить сообщение</h2>
               <ContactForm />
             </div>
           </div>
         </div>
+
+        {/* Наши соцсети */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">Наши соцсети</h2>
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-gradient-to-r from-sky-600/20 to-blue-600/20 backdrop-blur-sm rounded-xl p-6 sm:p-8 border border-sky-400/30">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-sky-500/20 border border-sky-300/30">
+                  <i className="fab fa-telegram text-sky-300 text-2xl"></i>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-white mb-2">Телеграм‑канал «Катрич и Склад»</h3>
+                  <p className="text-gray-200/90">
+                    Живое сообщество про ремонт ТСД и складскую технику: реальные кейсы, советы без воды,
+                    дружелюбная атмосфера. Заходите — будем рады!
+                  </p>
+                </div>
+                <div className="w-full sm:w-auto">
+                  <a
+                    href="https://t.me/sklad_remont_tsd"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 px-6 py-3 text-base bg-blue-600 text-white hover:bg-blue-700 w-full"
+                  >
+                    Открыть в Telegram
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Дополнительная информация */}
         <div className="mb-16">
@@ -175,9 +205,6 @@ export default function ContactsPage() {
               Свяжитесь с нами прямо сейчас для получения консультации
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href={`tel:${SITE_CONFIG.phone}`} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-block">
-                Позвонить сейчас
-              </a>
               <a href={`mailto:${SITE_CONFIG.email}`} className="border-2 border-white text-white hover:bg-white hover:text-slate-700 px-8 py-3 rounded-lg font-semibold transition-colors inline-block">
                 Написать email
               </a>
