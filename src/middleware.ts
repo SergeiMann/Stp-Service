@@ -9,16 +9,16 @@ export function middleware(_req: NextRequest) {
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
 
-  const isProd = process.env.NODE_ENV === 'production'
+  // Разрешаем критичные для Next.js inline-скрипты и внешние стили (Google Fonts/CDNJS)
   const csp = [
     "default-src 'self'",
     "img-src 'self' data: https:",
-    isProd ? "script-src 'self'" : "script-src 'self' 'unsafe-inline'",
-    isProd ? "style-src 'self'" : "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "connect-src 'self' https:",
-    "font-src 'self' data:",
+    "font-src 'self' data: https://fonts.gstatic.com",
     "frame-ancestors 'none'",
-  ].filter(Boolean).join('; ')
+  ].join('; ')
 
   res.headers.set('Content-Security-Policy', csp)
   return res

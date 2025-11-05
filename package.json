@@ -55,6 +55,7 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@modelcontextprotocol/sdk": "^1.18.0",
     "@prisma/client": "^6.15.0",
     "bcryptjs": "^2.4.3",

@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { ProductGrid } from '@/components/catalog/ProductGrid'
+import { useEffect, useMemo, useState } from 'react'
+// import { ProductGrid } from '@/components/catalog/ProductGrid'
 import { CatalogSidebar } from '@/components/catalog/CatalogSidebar'
 import { Button } from '@/components/ui/Button'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { useSearchParams } from 'next/navigation'
 
 export default function CatalogPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -12,6 +13,8 @@ export default function CatalogPage() {
   const [selectedBrand, setSelectedBrand] = useState<string | string[]>('all')
   const [priceRange, setPriceRange] = useState({ min: 0, max: 200000 })
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const searchParams = useSearchParams()
+  const searchParamsKey = useMemo(() => searchParams?.toString() || '', [searchParams])
 
   const handleReset = () => {
     setSearchQuery('')
@@ -19,6 +22,43 @@ export default function CatalogPage() {
     setSelectedBrand('all')
     setPriceRange({ min: 0, max: 200000 })
   }
+
+  // Инициализация фильтров из query (?category=slug-or-id&brand=...&search=...)
+  useEffect(() => {
+    if (!searchParams) return
+    const categoryParam = searchParams.get('category')
+    const brandParam = searchParams.get('brand')
+    const qParam = searchParams.get('search') || searchParams.get('q')
+    const minParam = searchParams.get('min')
+    const maxParam = searchParams.get('max')
+
+    if (qParam) setSearchQuery(qParam)
+    if (minParam || maxParam) {
+      setPriceRange({
+        min: minParam ? Number(minParam) : 0,
+        max: maxParam ? Number(maxParam) : 200000
+      })
+    }
+
+    if (brandParam) {
+      setSelectedBrand(brandParam.includes(',') ? brandParam.split(',') : brandParam)
+    }
+
+    if (categoryParam) {
+      const requested = categoryParam.split(',')
+      fetch('/api/categories')
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data?.success) return
+          const cats: Array<{ id: string; slug: string }> = data.data
+          const ids = requested
+            .map((val) => cats.find((c) => c.id === val || c.slug === val)?.id)
+            .filter(Boolean) as string[]
+          if (ids.length > 0) setSelectedCategory(ids.length === 1 ? ids[0] : ids)
+        })
+        .catch(() => {})
+    }
+  }, [searchParamsKey])
 
   return (
     <PageLayout
@@ -63,12 +103,22 @@ export default function CatalogPage() {
           {/* Main Content */}
           <div className="flex-1 min-w-0">
             <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/30">
-              <ProductGrid
-                searchQuery={searchQuery}
-                selectedCategory={selectedCategory}
-                selectedBrand={selectedBrand}
-                priceRange={priceRange}
-              />
+              {/* Временная заглушка вместо сетки товаров для прод-запуска */}
+              <div className="flex items-center justify-center py-24">
+                <p className="text-xl sm:text-2xl font-semibold text-slate-200 text-center">
+                  Скоро здесь появится много крутых предложений
+                </p>
+              </div>
+              {/**
+               * Оригинальный рендер каталога. Вернуть, когда будет готов API/данные.
+               *
+               * <ProductGrid
+               *   searchQuery={searchQuery}
+               *   selectedCategory={selectedCategory}
+               *   selectedBrand={selectedBrand}
+               *   priceRange={priceRange}
+               * />
+               */}
             </div>
           </div>
         </div>

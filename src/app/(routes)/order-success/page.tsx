@@ -104,9 +104,9 @@ function OrderSuccessContent() {
           <div className="mt-8 pt-6 border-t border-gray-200">
             <h3 className="font-semibold text-gray-900 mb-3">Контактная информация</h3>
             <div className="text-sm text-gray-600 space-y-1">
-              <p>📞 +7 (495) 123-45-67</p>
-              <p>📧 info@stp-service.ru</p>
-              <p>🕒 Пн-Пт: 9:00-18:00, Сб: 10:00-16:00</p>
+              <p>📞 +7 (495) 255-08-54</p>
+              <p>📧 info@stp-service.com</p>
+              <p>🕒 пн-пт 10:00-19:00; сб, вс — выходной день</p>
             </div>
           </div>
         </Card>

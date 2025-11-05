@@ -6,25 +6,26 @@ import { usePathname } from 'next/navigation'
 import { SITE_CONFIG } from '@/lib/constants'
 import { Button } from '@/components/ui/Button'
 import { CartModal } from '@/components/ui/CartModal'
-import { AuthModal } from '@/components/ui/AuthModal'
+// import { AuthModal } from '@/components/ui/AuthModal'
 import { useCart } from '@/contexts/CartContext'
-import { useAuth } from '@/contexts/AuthContext'
+// import { useAuth } from '@/contexts/AuthContext'
 
 const navigation = [
   { name: 'Главная', href: '/' },
   { name: 'Каталог', href: '/catalog' },
   { name: 'Услуги', href: '/services' },
   { name: 'О компании', href: '/about' },
+  { name: 'Инлокер', href: '/inlocker' },
   { name: 'Контакты', href: '/contacts' },
 ]
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isAuthOpen, setIsAuthOpen] = useState(false)
+  // const [isAuthOpen, setIsAuthOpen] = useState(false)
   const pathname = usePathname()
   const { itemCount } = useCart()
-  const { user, logout, loading } = useAuth()
+  // const { user, logout, loading } = useAuth()
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -66,7 +67,7 @@ export function Header() {
           <div className="hidden lg:flex items-center space-x-6">
             <div className="text-right">
               <div className="font-semibold text-gray-900">{SITE_CONFIG.phone}</div>
-              <div className="text-sm text-gray-600">Ежедневно 9:00-21:00</div>
+              <div className="text-sm text-gray-600">пн-пт 10:00-19:00</div>
             </div>
             
             {/* Cart */}
@@ -82,36 +83,7 @@ export function Header() {
               )}
             </button>
             
-            {/* User Auth */}
-            {loading ? (
-              <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
-            ) : user ? (
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">
-                    {user.name || user.email}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {user.role === 'ADMIN' ? 'Администратор' : 'Пользователь'}
-                  </div>
-                </div>
-                <button
-                  onClick={() => logout()}
-                  className="text-sm text-gray-600 hover:text-red-600 transition-colors"
-                  title="Выйти"
-                >
-                  <i className="fas fa-sign-out-alt"></i>
-                </button>
-              </div>
-            ) : (
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => setIsAuthOpen(true)}
-              >
-                Войти
-              </Button>
-            )}
+            {/* Авторизация временно отключена для прод-запуска */}
           </div>
 
           {/* Mobile menu button */}
@@ -147,7 +119,7 @@ export function Header() {
               ))}
               <div className="pt-4 border-t border-gray-200">
                 <div className="font-semibold text-gray-900">{SITE_CONFIG.phone}</div>
-                <div className="text-sm text-gray-600 mb-3">Ежедневно 9:00-21:00</div>
+                <div className="text-sm text-gray-600 mb-3">пн-пт 10:00-19:00</div>
                 <Button size="sm" className="w-full">
                   Заказать звонок
                 </Button>
@@ -163,11 +135,7 @@ export function Header() {
         onClose={() => setIsCartOpen(false)} 
       />
       
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        onClose={() => setIsAuthOpen(false)} 
-      />
+      {/* <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} /> */}
     </header>
   )
 }

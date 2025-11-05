@@ -12,7 +12,8 @@ export function ConditionalHeader() {
     '/about',
     '/services', 
     '/contacts',
-    '/catalog'
+    '/catalog',
+    '/inlocker'
   ]
   
   // Проверяем точное совпадение или начало пути для каталога (учитываем возможный null)

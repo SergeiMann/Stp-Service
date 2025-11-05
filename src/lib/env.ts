@@ -7,6 +7,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
   ADMIN_API_KEY: z.string().optional(),
   PORT: z.string().optional(),
+  BITRIX24_WEBHOOK_URL: z.string().url().optional(),
+  BITRIX24_RESPONSIBLE_ID: z.string().optional(),
 })
 
 export type AppEnv = z.infer<typeof envSchema>
@@ -18,6 +20,8 @@ export const env: AppEnv = envSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
   ADMIN_API_KEY: process.env.ADMIN_API_KEY,
   PORT: process.env.PORT,
+  BITRIX24_WEBHOOK_URL: process.env.BITRIX24_WEBHOOK_URL,
+  BITRIX24_RESPONSIBLE_ID: process.env.BITRIX24_RESPONSIBLE_ID,
 })
 
 export const isProd = env.NODE_ENV === 'production'

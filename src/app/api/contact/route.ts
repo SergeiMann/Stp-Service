@@ -6,12 +6,27 @@ import { rateLimit } from '@/lib/rate-limit'
 export const dynamic = 'force-dynamic'
 
 const contactSchema = z.object({
-  name: z.string().min(2).max(100),
-  phone: z.string().min(10).max(32),
-  email: z.string().email().optional(),
+  name: z
+    .string()
+    .min(2, 'Имя: минимум 2 символа')
+    .max(100, 'Имя: максимум 100 символов'),
+  // Требуем ровно 11 цифр, первая — 7 (формат +7 (xxx) xxx-xx-xx)
+  phone: z
+    .string()
+    .refine((v) => {
+      const d = v.replace(/\D/g, '')
+      return d.length === 11 && d.startsWith('7')
+    }, 'Телефон: введите в формате +7 (xxx) xxx-xx-xx'),
+  email: z.string().email('Некорректный email'),
   company: z.string().max(100).optional(),
-  message: z.string().min(5).max(2000),
-  equipment: z.string().max(100).optional(),
+  message: z
+    .string()
+    .min(5, 'Сообщение: минимум 5 символов')
+    .max(2000, 'Сообщение слишком длинное'),
+  equipment: z
+    .string()
+    .min(1, 'Выберите тип оборудования')
+    .max(100, 'Тип оборудования слишком длинный'),
 })
 
 const limiter = rateLimit({ intervalMs: 60_000, uniqueTokenPerInterval: 1000 })
@@ -19,10 +34,70 @@ const limiter = rateLimit({ intervalMs: 60_000, uniqueTokenPerInterval: 1000 })
 interface ContactFormData {
   name: string
   phone: string
-  email?: string
+  email: string
   company?: string
   message: string
-  equipment?: string
+  equipment: string
+}
+
+async function createBitrixLead(data: ContactFormData) {
+  const webhookBase = process.env.BITRIX24_WEBHOOK_URL
+  if (!webhookBase) {
+    // Интеграция выключена, если не задан webhook
+    return { skipped: true }
+  }
+
+  const fields: Record<string, any> = {
+    TITLE: 'Заявка с сайта',
+    NAME: data.name,
+    PHONE: [{ VALUE: data.phone, VALUE_TYPE: 'WORK' }],
+    COMMENTS:
+      data.message + (data.equipment ? `\nОборудование: ${data.equipment}` : ''),
+    SOURCE_ID: 'WEB',
+  }
+
+  if (data.email) {
+    fields.EMAIL = [{ VALUE: data.email, VALUE_TYPE: 'WORK' }]
+  }
+
+  const responsibleId = process.env.BITRIX24_RESPONSIBLE_ID
+  if (responsibleId) {
+    fields.ASSIGNED_BY_ID = Number(responsibleId)
+  }
+
+  const payload = {
+    fields,
+    params: { REGISTER_SONET_EVENT: 'Y' },
+  }
+
+  try {
+    const res = await fetch(`${webhookBase}/crm.lead.add.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      // Не тянем куки, чтобы не было проблем на сервере
+      cache: 'no-store',
+    })
+
+    const text = await res.text()
+    try {
+      const json = JSON.parse(text)
+      if (!res.ok || (json && json.error)) {
+        console.error('Bitrix24 lead error:', json || text)
+        return { error: json || text }
+      }
+      return { result: json }
+    } catch {
+      if (!res.ok) {
+        console.error('Bitrix24 lead error (non-JSON):', text)
+        return { error: text }
+      }
+      return { result: text }
+    }
+  } catch (e) {
+    console.error('Bitrix24 fetch failed:', e)
+    return { error: String(e) }
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -37,7 +112,11 @@ export async function POST(request: NextRequest) {
     const json = await request.json()
     const parsed = contactSchema.safeParse(json)
     if (!parsed.success) {
-      return NextResponse.json({ success: false, error: 'Некорректные данные' }, { status: 400 })
+      const details = parsed.error.flatten()
+      return NextResponse.json(
+        { success: false, error: 'Некорректные данные', details },
+        { status: 400 }
+      )
     }
     const body = parsed.data
     
@@ -60,6 +139,13 @@ export async function POST(request: NextRequest) {
       name: contactRequest.name,
       phone: contactRequest.phone,
       timestamp: contactRequest.createdAt
+    })
+    
+    // Параллельно отправляем лид в Bitrix24 (не блокируем ответ клиенту)
+    createBitrixLead(body).then((res) => {
+      if ((res as any).error) {
+        console.error('Bitrix24 integration failed:', (res as any).error)
+      }
     })
     
     return NextResponse.json({

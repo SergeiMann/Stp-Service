@@ -4,6 +4,9 @@ import { SITE_CONFIG } from '@/lib/constants'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
+import { CertsGallery } from '@/components/sections/CertsGallery'
+import { PartnersGrid } from '@/components/sections/PartnersGrid'
+import { partners as partnersData } from '@/data/partners'
 
 export const metadata: Metadata = {
   ...generateSEO({
@@ -155,6 +158,29 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
+
+        {/* Партнёры */}
+        <PartnersGrid partners={partnersData} />
+
+        {/* Витрина сертификатов */}
+        <section id="certs" className="mb-16">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">Наши сертификаты</h2>
+          <CertsGallery
+            images={[
+              'astra.jpg',
+              'cipher.jpg',
+              'godex.jpg',
+              'm3.jpg',
+              'tsc.jpg',
+              'urovo_service.jpg',
+              'urovo_reseller.jpg',
+              'urovo2024.jpg',
+              'zebra.jpg',
+            ]}
+          />
+        </section>
+
+        
 
         {/* CTA секция */}
         <div className="text-center">

@@ -30,6 +30,43 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { addToast } = useToast()
 
+  // Форматирование телефона под маску +7 (xxx) xxx-xx-xx с автозаменой 8→+7
+  const formatPhone = (raw: string): string => {
+    const digitsOnly = raw.replace(/\D/g, '')
+
+    // Определяем базовые 11 цифр, всегда приводим к ведущей 7
+    let normalized = digitsOnly
+    if (normalized.startsWith('8')) {
+      normalized = '7' + normalized.slice(1)
+    } else if (!normalized.startsWith('7')) {
+      normalized = '7' + normalized
+    }
+
+    // Берём максимум 11 цифр (1 префикс + 10 национальный номер)
+    normalized = normalized.slice(0, 11)
+
+    // Национальная часть без первой 7
+    const n = normalized.slice(1)
+    const p1 = n.slice(0, 3)
+    const p2 = n.slice(3, 6)
+    const p3 = n.slice(6, 8)
+    const p4 = n.slice(8, 10)
+
+    let formatted = '+7'
+    if (n.length > 0) formatted += ' (' + p1
+    if (n.length >= 3) formatted += ')'
+    if (n.length > 3) formatted += ' ' + p2
+    if (n.length > 6) formatted += '-' + p3
+    if (n.length > 8) formatted += '-' + p4
+
+    // Если пользователь ещё не ввёл ни одной цифры после +7
+    if (n.length === 0) formatted += ' '
+
+    return formatted
+  }
+
+  const getDigits = (value: string): string => value.replace(/\D/g, '')
+
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {}
 
@@ -39,16 +76,27 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
 
     if (!formData.phone.trim()) {
       newErrors.phone = 'Телефон обязателен для заполнения'
-    } else if (!/^[\+]?[0-9\s\-\(\)]{10,}$/.test(formData.phone)) {
-      newErrors.phone = 'Некорректный формат телефона'
+    } else {
+      const digits = getDigits(formData.phone)
+      if (!(digits.length === 11 && digits.startsWith('7'))) {
+        newErrors.phone = 'Введите телефон в формате +7 (xxx) xxx-xx-xx'
+      }
     }
 
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email обязателен'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Некорректный формат email'
     }
 
     if (!formData.message.trim()) {
       newErrors.message = 'Сообщение обязательно для заполнения'
+    } else if (formData.message.trim().length < 5) {
+      newErrors.message = 'Сообщение: минимум 5 символов'
+    }
+
+    if (!formData.equipment.trim()) {
+      newErrors.equipment = 'Выберите тип оборудования'
     }
 
     setErrors(newErrors)
@@ -90,7 +138,20 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
           await onSubmit(formData)
         }
       } else {
-        addToast(result.error || 'Произошла ошибка при отправке заявки.', 'error')
+        // Если сервер прислал детали валидации — покажем под полями и тостом
+        if (result?.details?.fieldErrors) {
+          const fieldErrors = result.details.fieldErrors as Record<string, string[]>
+          const mapped: Partial<FormData> = {}
+          ;(['name','phone','email','message','equipment'] as (keyof FormData)[]).forEach((k) => {
+            const msg = fieldErrors[k as string]?.[0]
+            if (msg) mapped[k] = msg
+          })
+          if (Object.keys(mapped).length) setErrors(mapped)
+          const first = Object.values(mapped)[0]
+          addToast(first || result.error || 'Произошла ошибка при отправке заявки.', 'error')
+        } else {
+          addToast(result.error || 'Произошла ошибка при отправке заявки.', 'error')
+        }
       }
     } catch (error) {
       console.error('Form submission error:', error)
@@ -101,7 +162,11 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
   }
 
   const handleChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    let nextValue = value
+    if (field === 'phone') {
+      nextValue = formatPhone(value)
+    }
+    setFormData(prev => ({ ...prev, [field]: nextValue }))
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }))
     }
@@ -138,6 +203,11 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             id="phone"
             value={formData.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
+            onFocus={() => {
+              if (!formData.phone) {
+                setFormData(prev => ({ ...prev, phone: '+7 ' }))
+              }
+            }}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.phone ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -149,7 +219,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email
+            Email *
           </label>
           <input
             type="email"
@@ -167,13 +237,15 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
         {/* Equipment */}
         <div>
           <label htmlFor="equipment" className="block text-sm font-medium text-gray-700 mb-1">
-            Тип оборудования
+            Тип оборудования *
           </label>
           <select
             id="equipment"
             value={formData.equipment}
             onChange={(e) => handleChange('equipment', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.equipment ? 'border-red-500' : 'border-gray-300'
+            }`}
           >
             <option value="">Выберите тип оборудования</option>
             <option value="scanner">Сканер штрих-кодов</option>
@@ -182,6 +254,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             <option value="tablet">Планшет</option>
             <option value="other">Другое</option>
           </select>
+          {errors.equipment && <p className="text-red-500 text-sm mt-1">{errors.equipment}</p>}
         </div>
 
         {/* Message */}

@@ -6,9 +6,9 @@ import { usePathname } from 'next/navigation'
 import { SITE_CONFIG } from '@/lib/constants'
 import { Button } from '@/components/ui/Button'
 import { CartModal } from '@/components/ui/CartModal'
-import { AuthModal } from '@/components/ui/AuthModal'
+// import { AuthModal } from '@/components/ui/AuthModal'
 import { useCart } from '@/contexts/CartContext'
-import { useAuth } from '@/contexts/AuthContext'
+// import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
 
 const navigation = [
@@ -16,6 +16,7 @@ const navigation = [
   { name: 'Каталог', href: '/catalog' },
   { name: 'Услуги', href: '/services' },
   { name: 'О компании', href: '/about' },
+  { name: 'Инлокер', href: '/inlocker' },
   { name: 'Контакты', href: '/contacts' },
 ]
 
@@ -26,6 +27,7 @@ interface PageLayoutProps {
   badge?: string
   backgroundImage?: string
   className?: string
+  variant?: 'dark' | 'light'
 }
 
 export function PageLayout({ 
@@ -34,19 +36,27 @@ export function PageLayout({
   subtitle, 
   badge,
   backgroundImage = '/images/equipment/trade-and-warehouse-equipment-1.webp',
-  className = ''
+  className = '',
+  variant = 'dark'
 }: PageLayoutProps) {
+  const isLight = variant === 'light'
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isAuthOpen, setIsAuthOpen] = useState(false)
+  // const [isAuthOpen, setIsAuthOpen] = useState(false)
   const pathname = usePathname()
   const { itemCount } = useCart()
-  const { user, logout, loading } = useAuth()
+  // const { user, logout, loading } = useAuth()
+
+  const navActive = isLight
+    ? 'text-emerald-600 border-b-2 border-emerald-600 pb-1'
+    : 'text-blue-300 border-b-2 border-blue-300 pb-1'
+  const navInactive = isLight ? 'text-gray-700' : 'text-gray-300'
+  const navHover = isLight ? 'hover:text-emerald-700' : 'hover:text-blue-300'
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-700">
+    <div className={`min-h-screen ${isLight ? 'bg-gradient-to-b from-white via-emerald-50 to-white' : 'bg-gradient-to-b from-slate-900 via-slate-800 to-slate-700'}` }>
       {/* Hero Header Section */}
-      <section className="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800">
+      <section className={`relative ${isLight ? 'bg-gradient-to-b from-emerald-50 via-white to-emerald-50' : 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800'}` }>
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <div 
@@ -56,15 +66,15 @@ export function PageLayout({
             }}
           >
             {/* Multi-layer overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-800/85 to-slate-900/95"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-transparent to-slate-900/90"></div>
+            <div className={`absolute inset-0 bg-gradient-to-r ${isLight ? 'from-white/90 via-emerald-50/80 to-white/90' : 'from-slate-900/95 via-slate-800/85 to-slate-900/95'}`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-b ${isLight ? 'from-white/70 via-transparent to-white/80' : 'from-slate-900/80 via-transparent to-slate-900/90'}`}></div>
             
             {/* Tech Pattern Overlay */}
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-20 left-20 w-32 h-32 border border-blue-400/40 rounded-lg transform rotate-12 animate-pulse"></div>
-              <div className="absolute top-40 right-32 w-24 h-24 border border-blue-400/30 rounded-full animate-pulse delay-300"></div>
-              <div className="absolute bottom-32 left-32 w-40 h-40 border border-blue-400/35 rounded-lg transform -rotate-6 animate-pulse delay-700"></div>
-              <div className="absolute bottom-20 right-20 w-28 h-28 border border-blue-400/40 rounded-full animate-pulse delay-1000"></div>
+              <div className={`absolute top-20 left-20 w-32 h-32 border ${isLight ? 'border-emerald-400/40' : 'border-blue-400/40'} rounded-lg transform rotate-12 animate-pulse`}></div>
+              <div className={`absolute top-40 right-32 w-24 h-24 border ${isLight ? 'border-emerald-400/30' : 'border-blue-400/30'} rounded-full animate-pulse delay-300`}></div>
+              <div className={`absolute bottom-32 left-32 w-40 h-40 border ${isLight ? 'border-emerald-400/35' : 'border-blue-400/35'} rounded-lg transform -rotate-6 animate-pulse delay-700`}></div>
+              <div className={`absolute bottom-20 right-20 w-28 h-28 border ${isLight ? 'border-emerald-400/40' : 'border-blue-400/40'} rounded-full animate-pulse delay-1000`}></div>
             </div>
           </div>
         </div>
@@ -82,8 +92,8 @@ export function PageLayout({
                 />
               </div>
               <div>
-                <div className="font-bold text-xl text-white">СТП-Сервис</div>
-                <div className="text-sm text-gray-300">Ремонт торгового оборудования</div>
+                <div className={`font-bold text-xl ${isLight ? 'text-gray-900' : 'text-white'}`}>СТП-Сервис</div>
+                <div className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>Ремонт торгового оборудования</div>
               </div>
             </Link>
 
@@ -93,10 +103,8 @@ export function PageLayout({
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors hover:text-blue-300 ${
-                    pathname === item.href
-                      ? 'text-blue-300 border-b-2 border-blue-300 pb-1'
-                      : 'text-gray-300'
+                  className={`text-sm font-medium transition-colors ${navHover} ${
+                    pathname === item.href ? navActive : navInactive
                   }`}
                 >
                   {item.name}
@@ -107,58 +115,29 @@ export function PageLayout({
             {/* Contact Info & CTA */}
             <div className="hidden lg:flex items-center space-x-6">
               <div className="text-right">
-                <div className="font-semibold text-white">{SITE_CONFIG.phone}</div>
-                <div className="text-sm text-gray-300">Ежедневно 9:00-21:00</div>
+                <div className={`font-semibold ${isLight ? 'text-gray-900' : 'text-white'}`}>{SITE_CONFIG.phone}</div>
+                <div className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>пн-пт 10:00-19:00</div>
               </div>
               
               {/* Cart */}
               <button 
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-gray-300 hover:text-blue-300 transition-colors"
+                className={`relative p-2 ${isLight ? 'text-gray-700 hover:text-emerald-700' : 'text-gray-300 hover:text-blue-300'} transition-colors`}
               >
                 <i className="fas fa-shopping-cart text-xl"></i>
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className={`absolute -top-1 -right-1 ${isLight ? 'bg-emerald-600' : 'bg-blue-600'} text-white text-xs rounded-full w-5 h-5 flex items-center justify-center`}>
                     {itemCount}
                   </span>
                 )}
               </button>
               
-              {/* User Auth */}
-              {loading ? (
-                <div className="w-8 h-8 animate-pulse bg-gray-600 rounded"></div>
-              ) : user ? (
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-white">
-                      {user.name || user.email}
-                    </div>
-                    <div className="text-xs text-gray-300">
-                      {user.role === 'ADMIN' ? 'Администратор' : 'Пользователь'}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => logout()}
-                    className="text-sm text-gray-300 hover:text-red-400 transition-colors"
-                    title="Выйти"
-                  >
-                    <i className="fas fa-sign-out-alt"></i>
-                  </button>
-                </div>
-              ) : (
-                <Button 
-                  size="sm" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => setIsAuthOpen(true)}
-                >
-                  Войти
-                </Button>
-              )}
+              {/* Авторизация временно отключена для прод-запуска */}
             </div>
 
             {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2 rounded-md text-white hover:text-blue-300"
+              className={`lg:hidden p-2 rounded-md ${isLight ? 'text-gray-800 hover:text-emerald-700' : 'text-white hover:text-blue-300'}`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,8 +158,8 @@ export function PageLayout({
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`text-base font-medium transition-colors hover:text-blue-300 ${
-                      pathname === item.href ? 'text-blue-300' : 'text-gray-300'
+                    className={`text-base font-medium transition-colors ${isLight ? 'hover:text-emerald-700' : 'hover:text-blue-300'} ${
+                      pathname === item.href ? (isLight ? 'text-emerald-700' : 'text-blue-300') : (isLight ? 'text-gray-700' : 'text-gray-300')
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -188,9 +167,9 @@ export function PageLayout({
                   </Link>
                 ))}
                 <div className="pt-4 border-t border-gray-600">
-                  <div className="font-semibold text-white">{SITE_CONFIG.phone}</div>
-                  <div className="text-sm text-gray-300 mb-3">Ежедневно 9:00-21:00</div>
-                  <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                <div className={`font-semibold ${isLight ? 'text-gray-900' : 'text-white'}`}>{SITE_CONFIG.phone}</div>
+                <div className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-300'} mb-3`}>пн-пт 10:00-19:00</div>
+                  <Button size="sm" className={`w-full ${isLight ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}>
                     Заказать звонок
                   </Button>
                 </div>
@@ -201,19 +180,25 @@ export function PageLayout({
 
         {/* Page Title Section */}
         <div className="relative z-20 container mx-auto px-4 py-16">
-          <div className="text-center text-white fade-in-up">
+          <div className={`text-center ${isLight ? 'text-emerald-900' : 'text-white'} fade-in-up`}>
             {badge && (
               <div className="mb-6">
-                <span className="inline-block px-4 py-2 bg-blue-600/20 backdrop-blur-sm rounded-full text-blue-300 text-sm font-medium border border-blue-400/30">
-                  {badge}
-                </span>
+                {isLight ? (
+                  <span className="inline-block px-4 py-2 bg-emerald-600/10 backdrop-blur-sm rounded-full text-emerald-700 text-sm font-medium border border-emerald-600/20">
+                    {badge}
+                  </span>
+                ) : (
+                  <span className="inline-block px-4 py-2 bg-blue-600/20 backdrop-blur-sm rounded-full text-blue-300 text-sm font-medium border border-blue-400/30">
+                    {badge}
+                  </span>
+                )}
               </div>
             )}
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            <h1 className={`text-4xl md:text-5xl font-bold mb-6 leading-tight ${isLight ? 'text-emerald-900' : ''}`}>
               {title}
             </h1>
             {subtitle && (
-              <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
+              <p className={`text-lg md:text-xl ${isLight ? 'text-gray-700' : 'text-gray-300'} max-w-3xl mx-auto`}>
                 {subtitle}
               </p>
             )}
@@ -222,7 +207,7 @@ export function PageLayout({
       </section>
 
       {/* Content Section */}
-      <div className={`relative bg-gradient-to-b from-slate-800 to-slate-700 ${className}`}>
+      <div className={`relative ${isLight ? 'bg-white' : 'bg-gradient-to-b from-slate-800 to-slate-700'} ${className}`}>
         {children}
       </div>
 
@@ -232,10 +217,7 @@ export function PageLayout({
         onClose={() => setIsCartOpen(false)} 
       />
       
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        onClose={() => setIsAuthOpen(false)} 
-      />
+      {/* <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} /> */}
     </div>
   )
 }
