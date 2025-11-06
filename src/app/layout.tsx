@@ -23,10 +23,14 @@ export const metadata: Metadata = {
   },
   description: SITE_CONFIG.description,
   icons: {
-    icon: '/images/brands/logo.svg',
+    icon: [
+      { url: '/images/brands/logo.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/brands/logo.png', sizes: '96x96', type: 'image/png' },
+    ],
+    apple: '/images/brands/logo.png',
   },
   keywords: [
-    'ремонт торгового оборудования',
+    'ремонт оборудования',
     'ремонт ТСД', 
     'сканеры штрих-кода',
     'принтеры этикеток',
@@ -68,7 +72,9 @@ export default function RootLayout({
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
         {/* Локальное подключение Font Awesome через импорт выше */}
-        <link rel="icon" href="/images/brands/logo.svg" type="image/svg+xml" />
+        <link rel="icon" href="/images/brands/logo.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/images/brands/logo.png" type="image/png" sizes="96x96" />
+        <link rel="apple-touch-icon" href="/images/brands/logo.png" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <ToastProvider>

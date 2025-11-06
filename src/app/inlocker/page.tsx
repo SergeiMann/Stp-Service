@@ -156,17 +156,17 @@ export default function InlockerPage() {
               <div className="flex items-center justify-center gap-6">
                 <div className="group relative w-28 md:w-36 aspect-[4/3] transition-transform duration-300 ease-out">
                   <div className="absolute inset-0 transition-transform duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-1">
-                    <Image src="/images/inlocker/1 ячейка.png" alt="Ячейка S" fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="120px" />
+                    <Image src="/images/inlocker/1_shkaf.png" alt="Ячейка S" fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="120px" />
                   </div>
                 </div>
                 <div className="group relative w-32 md:w-44 aspect-[4/3] transition-transform duration-300 ease-out">
                   <div className="absolute inset-0 transition-transform duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-1">
-                    <Image src="/images/inlocker/2 ячейки.png" alt="Ячейки M/L" fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="160px" />
+                    <Image src="/images/inlocker/2_shkaf.png" alt="Ячейки M/L" fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="160px" />
                   </div>
                 </div>
                 <div className="group relative w-40 md:w-56 aspect-[4/3] transition-transform duration-300 ease-out">
                   <div className="absolute inset-0 transition-transform duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-1">
-                    <Image src="/images/inlocker/4 ячейки.png" alt="Ячейки XL" fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="220px" />
+                    <Image src="/images/inlocker/4_shkaf.png" alt="Ячейки XL" fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="220px" />
                   </div>
                 </div>
               </div>

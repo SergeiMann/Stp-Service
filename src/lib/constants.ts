@@ -1,7 +1,7 @@
 export const SITE_CONFIG = {
-  name: 'STP-Service',
-  tagline: 'Ремонт торгового оборудования',
-  description: 'Профессиональный ремонт и обслуживание торгового оборудования',
+  name: 'СТП-Сервис',
+  tagline: 'Ремонт и поставка оборудования для маркировки',
+  description: 'Профессиональный ремонт и обслуживание оборудования для маркировки и сбора данных',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://localhost:3000',
   phone: '+7 (495) 255-08-54',
   email: 'info@stp-service.com',

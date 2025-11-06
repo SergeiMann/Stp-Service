@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/(routes)/contacts/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(routes)/contacts/page.js"
+      "static/chunks/app/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -36,10 +36,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(routes)/catalog/page.js"
     ],
-    "/page": [
+    "/(routes)/contacts/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/(routes)/contacts/page.js"
     ]
   }
 }

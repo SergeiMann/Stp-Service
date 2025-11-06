@@ -32,17 +32,17 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg overflow-hidden">
+          <Link href="/" className="flex items-center space-x-4">
+            <div className="w-20 h-20 rounded-lg overflow-hidden">
               <img 
-                src="/images/brands/logo.svg" 
+                src="/images/brands/logo.png" 
                 alt={SITE_CONFIG.name}
                 className="w-full h-full object-contain"
               />
             </div>
             <div>
-              <div className="font-bold text-xl text-gray-900">{SITE_CONFIG.name}</div>
-              <div className="text-sm text-gray-600">{SITE_CONFIG.tagline}</div>
+              <div className="font-bold text-3xl text-gray-900">{SITE_CONFIG.name}</div>
+              <div className="text-base text-gray-600">{SITE_CONFIG.tagline}</div>
             </div>
           </Link>
 

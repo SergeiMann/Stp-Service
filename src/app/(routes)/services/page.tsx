@@ -8,7 +8,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   ...generateSEO({
     title: 'Услуги',
-    description: 'Ремонт терминалов сбора данных, техническая поддержка, обслуживание торгового оборудования.',
+    description: 'Ремонт терминалов сбора данных, техническая поддержка, обслуживание оборудования для маркировки и сбора данных.',
   })
 }
 
@@ -19,7 +19,7 @@ export default function ServicesPage() {
       title: 'Ремонт ТСД',
       description: 'Профессиональный ремонт терминалов сбора данных всех популярных брендов',
       features: ['Диагностика', 'Замена экранов', 'Ремонт плат', 'Восстановление ПО'],
-      price: 'от 2 500 ₽',
+      price: 'от 1 000 ₽',
       color: 'blue'
     },
     {
@@ -27,7 +27,7 @@ export default function ServicesPage() {
       title: 'Ремонт сканеров',
       description: 'Восстановление работоспособности сканеров штрих-кодов любой сложности',
       features: ['Чистка оптики', 'Замена лазера', 'Ремонт корпуса', 'Настройка'],
-      price: 'от 1 800 ₽',
+      price: 'от 500 ₽',
       color: 'green'
     },
     {
@@ -35,7 +35,7 @@ export default function ServicesPage() {
       title: 'Ремонт принтеров',
       description: 'Обслуживание термо- и термотрансферных принтеров этикеток',
       features: ['Замена головки', 'Чистка механизма', 'Настройка печати', 'Профилактика'],
-      price: 'от 3 200 ₽',
+      price: 'от 1 500 ₽',
       color: 'purple'
     },
     {
@@ -43,15 +43,15 @@ export default function ServicesPage() {
       title: 'Ремонт планшетов',
       description: 'Восстановление защищенных планшетов для промышленного использования',
       features: ['Замена дисплеев', 'Ремонт разъемов', 'Восстановление корпуса', 'Обновление ПО'],
-      price: 'от 4 500 ₽',
+      price: 'от 1 500 ₽',
       color: 'yellow'
     },
     {
       icon: 'fas fa-tools',
       title: 'Техническое обслуживание',
-      description: 'Регулярное профилактическое обслуживание торгового оборудования',
+      description: 'Регулярное профилактическое обслуживание оборудования',
       features: ['Плановая диагностика', 'Чистка и смазка', 'Обновление ПО', 'Калибровка'],
-      price: 'от 1 200 ₽',
+      price: 'от 500 ₽',
       color: 'indigo'
     },
     {
@@ -59,7 +59,7 @@ export default function ServicesPage() {
       title: 'Техническая поддержка',
       description: 'Консультации и удаленная помощь по настройке оборудования',
       features: ['Консультации 24/7', 'Удаленная диагностика', 'Настройка ПО', 'Обучение персонала'],
-      price: 'от 800 ₽/час',
+      price: 'от 500 ₽/час',
       color: 'red'
     }
   ]
@@ -79,7 +79,7 @@ export default function ServicesPage() {
   return (
     <PageLayout
       title="Наши услуги"
-      subtitle="Профессиональное обслуживание и ремонт торгового оборудования с гарантией качества"
+      subtitle="Профессиональное обслуживание и ремонт оборудования для маркировки и сбора данных с гарантией качества"
       badge="Сервисный центр"
       backgroundImage="/images/equipment/zebra_mc3300ax.png"
     >
@@ -93,20 +93,20 @@ export default function ServicesPage() {
                   <i className={`${service.icon} text-white text-xl`}></i>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">{service.title}</h3>
-                  <div className={`text-sm font-semibold ${service.color === 'yellow' ? 'text-yellow-200' : `text-${service.color}-200`}`}>
+                  <h3 className="text-2xl font-bold text-white">{service.title}</h3>
+                  <div className={`text-base font-semibold ${service.color === 'yellow' ? 'text-yellow-200' : `text-${service.color}-200`}`}>
                     {service.price}
                   </div>
                 </div>
               </div>
               
-              <p className="text-gray-300 mb-4">{service.description}</p>
+              <p className="text-gray-300 mb-4 text-base">{service.description}</p>
               
               <div className="space-y-2">
                 {service.features.map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-white/60 rounded-full"></div>
-                    <span className="text-gray-300 text-sm">{feature}</span>
+                    <span className="text-gray-300 text-base">{feature}</span>
                   </div>
                 ))}
               </div>

@@ -1,4 +1,3 @@
-import { SITE_CONFIG } from '@/lib/constants'
 import { generateSEO } from '@/lib/utils'
 import { Metadata } from 'next'
 import Image from 'next/image'
@@ -6,11 +5,12 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EquipmentCategories } from '@/components/catalog/EquipmentCategories'
 import Link from 'next/link'
+import { HeroHeaderHome } from '@/components/layout/HeroHeaderHome'
 
 export const metadata: Metadata = {
   ...generateSEO({
     title: 'Главная',
-    description: 'Профессиональный ремонт и обслуживание торгового оборудования. Быстро, качественно, с гарантией. Ремонт терминалов, сканеров штрих-кодов, принтеров этикеток.',
+    description: 'Профессиональный ремонт и обслуживание оборудования для маркировки и сбора данных. Быстро, качественно, с гарантией. Ремонт терминалов, сканеров штрих-кодов, принтеров этикеток.',
   })
 }
 
@@ -63,63 +63,7 @@ export default function HomePage() {
 
         {/* Header */}
         <div className="relative z-30 container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="relative w-10 h-10 rounded-lg overflow-hidden">
-                <Image 
-                  src="/images/brands/logo.svg" 
-                  alt="СТП-Сервис"
-                  fill
-                  className="object-contain"
-                  sizes="40px"
-                  priority
-                />
-              </div>
-              <div>
-                <div className="font-bold text-xl text-white">СТП-Сервис</div>
-                <div className="text-sm text-gray-300">Ремонт торгового оборудования</div>
-              </div>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              <Link href="/" className="text-sm font-medium text-white hover:text-blue-300 transition-colors">
-                Главная
-              </Link>
-              <Link href="/catalog" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Каталог
-              </Link>
-              <Link href="/services" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Услуги
-              </Link>
-              <Link href="/about" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                О компании
-              </Link>
-              <Link href="/inlocker" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Инлокер
-              </Link>
-              <Link href="/contacts" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Контакты
-              </Link>
-            </nav>
-
-            {/* Contact Info */}
-            <div className="hidden lg:flex items-center space-x-6">
-              <div className="text-right">
-                <div className="font-semibold text-white">{SITE_CONFIG.phone}</div>
-                <div className="text-sm text-gray-300">пн-пт 10:00-19:00</div>
-              </div>
-              {/* Кнопка администратора временно скрыта для прод-запуска */}
-            </div>
-
-            {/* Mobile menu button */}
-            <button className="lg:hidden p-2 rounded-md text-white hover:text-blue-300">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
+          <HeroHeaderHome />
         </div>
 
         {/* Main Content */}

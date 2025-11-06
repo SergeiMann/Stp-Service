@@ -8,6 +8,7 @@ interface FormData {
   name: string
   phone: string
   email: string
+  company?: string
   message: string
   equipment: string
 }
@@ -22,6 +23,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
     name: '',
     phone: '',
     email: '',
+    company: '',
     message: '',
     equipment: ''
   })
@@ -127,6 +129,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
           name: '',
           phone: '',
           email: '',
+          company: '',
           message: '',
           equipment: ''
         })
@@ -142,7 +145,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
         if (result?.details?.fieldErrors) {
           const fieldErrors = result.details.fieldErrors as Record<string, string[]>
           const mapped: Partial<FormData> = {}
-          ;(['name','phone','email','message','equipment'] as (keyof FormData)[]).forEach((k) => {
+          ;(['name','phone','email','company','message','equipment'] as (keyof FormData)[]).forEach((k) => {
             const msg = fieldErrors[k as string]?.[0]
             if (msg) mapped[k] = msg
           })
@@ -191,6 +194,22 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             placeholder="Ваше имя"
           />
           {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        </div>
+
+        {/* Company (optional) */}
+        <div>
+          <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+            Компания
+          </label>
+          <input
+            type="text"
+            id="company"
+            value={formData.company || ''}
+            onChange={(e) => handleChange('company', e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.company ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="Наименование компании (необязательно)"
+          />
+          {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company}</p>}
         </div>
 
         {/* Phone */}

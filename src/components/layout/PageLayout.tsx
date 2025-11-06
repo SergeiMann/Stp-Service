@@ -83,17 +83,17 @@ export function PageLayout({
         <div className="relative z-30 container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg overflow-hidden">
+            <Link href="/" className="flex items-center space-x-4">
+              <div className="w-20 h-20 rounded-lg overflow-hidden">
                 <img 
-                  src="/images/brands/logo.svg" 
+                  src="/images/brands/logo.png" 
                   alt="СТП-Сервис"
                   className="w-full h-full object-contain"
                 />
               </div>
               <div>
-                <div className={`font-bold text-xl ${isLight ? 'text-gray-900' : 'text-white'}`}>СТП-Сервис</div>
-                <div className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>Ремонт торгового оборудования</div>
+                <div className={`font-bold text-3xl ${isLight ? 'text-gray-900' : 'text-white'}`}>СТП-Сервис</div>
+                <div className={`text-base ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>Ремонт и поставка оборудования для маркировки</div>
               </div>
             </Link>
 
