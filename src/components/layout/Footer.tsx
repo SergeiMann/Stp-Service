@@ -32,7 +32,7 @@ export function Footer() {
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 rounded-lg overflow-hidden">
                 <img 
-                  src="/images/brands/logo.svg" 
+                  src="/images/brands/logo.png" 
                   alt={SITE_CONFIG.name}
                   className="w-full h-full object-contain"
                 />
@@ -43,7 +43,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Профессиональный ремонт и обслуживание торгового оборудования. 
+              Профессиональный ремонт и обслуживание оборудования для маркировки и сбора данных. 
               Более 15 лет опыта работы с ведущими брендами.
             </p>
             <div className="flex space-x-4">

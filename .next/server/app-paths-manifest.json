@@ -1,6 +1,6 @@
 {
-  "/(routes)/services/page": "app/(routes)/services/page.js",
-  "/page": "app/page.js",
   "/(routes)/catalog/page": "app/(routes)/catalog/page.js",
-  "/(routes)/about/page": "app/(routes)/about/page.js"
+  "/(routes)/contacts/page": "app/(routes)/contacts/page.js",
+  "/page": "app/page.js",
+  "/inlocker/page": "app/inlocker/page.js"
 }

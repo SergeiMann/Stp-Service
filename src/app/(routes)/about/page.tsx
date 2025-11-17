@@ -11,7 +11,7 @@ import { partners as partnersData } from '@/data/partners'
 export const metadata: Metadata = {
   ...generateSEO({
     title: 'О компании',
-    description: 'STP-Service - профессиональная компания по ремонту и продаже торгового оборудования.',
+    description: 'СТП-Сервис - профессиональная компания по ремонту и продаже оборудования для маркировки.',
   })
 }
 
@@ -19,7 +19,7 @@ export default function AboutPage() {
   return (
     <PageLayout
       title="О компании СТП-Сервис"
-      subtitle="Мы специализируемся на профессиональном ремонте и продаже торгового оборудования с 2010 года"
+      subtitle="Мы специализируемся на профессиональном ремонте и продаже оборудования для маркировки и сбора данных с 2010 года"
       badge="Профессиональный сервис"
       backgroundImage="/images/equipment/Datalogic-Memor-11-Review-featured-image.png"
     >
@@ -30,7 +30,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold mb-6 text-blue-300">Наша миссия</h2>
             <div className="space-y-4 text-gray-300 text-lg">
               <p>
-                Обеспечить бесперебойную работу торгового оборудования наших клиентов 
+                Обеспечить бесперебойную работу оборудования для маркировки наших клиентов 
                 через качественный сервис, профессиональный ремонт и надежные решения.
               </p>
               <p>
