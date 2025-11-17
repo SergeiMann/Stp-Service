@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { rateLimit } from '@/lib/rate-limit'
+import { sendContactEmail } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
 
@@ -132,6 +133,25 @@ export async function POST(request: NextRequest) {
         status: 'NEW'
       }
     })
+    
+    // Отправка email уведомления
+    try {
+      await sendContactEmail({
+        name: body.name.trim(),
+        phone: body.phone.trim(),
+        email: body.email?.trim(),
+        company: body.company?.trim(),
+        message: body.message.trim(),
+        equipment: body.equipment?.trim(),
+      })
+    } catch (e) {
+      // Если email не ушел — считаем это ошибкой, чтобы не терять заявки
+      console.error('Email send failed:', e)
+      return NextResponse.json(
+        { success: false, error: 'Не удалось отправить письмо. Попробуйте позже.' },
+        { status: 502 }
+      )
+    }
     
     // Логирование для отладки
     console.log('Новая заявка сохранена:', {
