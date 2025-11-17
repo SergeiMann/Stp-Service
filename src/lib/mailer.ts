@@ -35,6 +35,19 @@ export function createSmtpTransport() {
 export async function sendContactEmail(data: ContactEmailPayload) {
   const transporter = createSmtpTransport()
 
+  // Верифицируем соединение, чтобы получить явную ошибку конфигурации
+  try {
+    await transporter.verify()
+  } catch (e: any) {
+    console.error('SMTP verify failed:', {
+      message: e?.message,
+      code: e?.code,
+      command: e?.command,
+      response: e?.response,
+    })
+    throw e
+  }
+
   const subject = `Заявка с сайта: ${data.name} (${data.phone})`
 
   const html = `
@@ -80,14 +93,25 @@ export async function sendContactEmail(data: ContactEmailPayload) {
   const from = env.SMTP_FROM
   const to = env.CONTACT_TO
 
-  const info = await transporter.sendMail({
-    from: `"STP-Service" <${from}>`,
-    to,
-    subject,
-    text,
-    html,
-    replyTo: data.email ? `${data.name} <${data.email}>` : undefined,
-  })
+  let info
+  try {
+    info = await transporter.sendMail({
+      from: `"STP-Service" <${from}>`,
+      to,
+      subject,
+      text,
+      html,
+      replyTo: data.email ? `${data.name} <${data.email}>` : undefined,
+    })
+  } catch (e: any) {
+    console.error('SMTP sendMail failed:', {
+      message: e?.message,
+      code: e?.code,
+      command: e?.command,
+      response: e?.response,
+    })
+    throw e
+  }
 
   return info
 }
