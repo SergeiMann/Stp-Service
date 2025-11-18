@@ -15,6 +15,27 @@ export default function InlockerPage() {
     primaryDark: '#16B455',
     tint: '#E9FBF1'
   }
+
+  const Pill = ({ label, tip }: { label: string; tip?: string }) => (
+    <div className="relative group inline-block">
+      <span
+        className="inline-block px-6 py-3 rounded-full text-base font-semibold cursor-default select-none transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
+        style={{
+          background: `linear-gradient(180deg, #FFFFFF 0%, ${brand.tint} 100%)`,
+          color: brand.primaryDark,
+          border: `1px solid ${brand.primary}55`,
+          boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+        }}
+      >
+        {label}
+      </span>
+      {tip && (
+        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 w-max max-w-xs opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
+          <div className="rounded-2xl px-4 py-3 text-white text-sm shadow-xl" style={{ backgroundColor: brand.primaryDark }}>{tip}</div>
+        </div>
+      )}
+    </div>
+  )
   return (
     <PageLayout 
       title="Инлокер — система ячеек хранения и учёта"
@@ -184,18 +205,7 @@ export default function InlockerPage() {
               <p className="text-gray-700 mb-6">Контролирует работу всех параметров с доступом с любого устройства.</p>
               <div className="flex flex-wrap gap-3 mb-6">
                 {['Пользователи','Шкафы','Проблемы','Сервис','Объекты','Оборудование','Медосмотр','Ремонт','Расходники'].map(x => (
-                  <span
-                    key={x}
-                    className="px-6 py-3 rounded-full text-base font-semibold cursor-default select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                    style={{
-                      background: `linear-gradient(180deg, #FFFFFF 0%, ${brand.tint} 100%)`,
-                      color: brand.primaryDark,
-                      border: `1px solid ${brand.primary}55`,
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-                    }}
-                  >
-                    {x}
-                  </span>
+                  <Pill key={x} label={x} />
                 ))}
               </div>
             </div>
@@ -222,21 +232,24 @@ export default function InlockerPage() {
             <div className="max-w-2xl">
               <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Модуль управления</h3>
               <p className="text-gray-700 mb-6">Отвечает за весь функционал и поддерживает до 480 ячеек в работе.</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 content-start">
-                {[{ label: 'WI‑FI', tip: 'Диапазоны 2,4 и 5 ГГц' },{ label: 'Экран', tip: '10″ антивандальный проекционно‑емкостный сенсорный монитор' },{ label: 'ОС', tip: 'Linux ARM' },{ label: 'ПО', tip: 'ПО Инлокер: мониторинг, аналитика, управление' },{ label: 'Считыватель', tip: 'Считыватель карт 6‑в‑1 R15‑Multi: 2.4 ГГц, 13.56 МГц, 125 КГц, NFC' },{ label: 'Питание', tip: 'Вход 200–240 VAC. Выход: 12V, 17A, 204W. Встроенный PFC > 0.5' },{ label: 'Цветовая индикация', tip: 'Светодиодная адресная подсветка' }].map((item) => (
-                  <div key={item.label} className="relative group">
-                    <span className="px-6 py-3 rounded-full text-base font-semibold cursor-default select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md" style={{ background: `linear-gradient(180deg, #FFFFFF 0%, ${brand.tint} 100%)`, color: brand.primaryDark, border: `1px solid ${brand.primary}55`, boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>{item.label}</span>
-                    <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 w-max max-w-xs opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
-                      <div className="rounded-2xl px-4 py-3 text-white text-sm shadow-xl" style={{ backgroundColor: brand.primaryDark }}>{item.tip}</div>
-                    </div>
-                  </div>
+              <div className="flex flex-wrap gap-3 content-start">
+                {[
+                  { label: 'WI‑FI', tip: 'Диапазоны 2,4 и 5 ГГц' },
+                  { label: 'Экран', tip: '10″ антивандальный проекционно‑емкостный сенсорный монитор' },
+                  { label: 'ОС', tip: 'Linux ARM' },
+                  { label: 'ПО', tip: 'ПО Инлокер: мониторинг, аналитика, управление' },
+                  { label: 'Считыватель', tip: 'Считыватель карт 6‑в‑1 R15‑Multi: 2.4 ГГц, 13.56 МГц, 125 КГц, NFC' },
+                  { label: 'Питание', tip: 'Вход 200–240 VAC. Выход: 12V, 17A, 204W. Встроенный PFC > 0.5' },
+                  { label: 'Цветовая индикация', tip: 'Светодиодная адресная подсветка' }
+                ].map((item) => (
+                  <Pill key={item.label} label={item.label} tip={item.tip} />
                 ))}
               </div>
             </div>
             <div>
               <div className="group transition-all duration-300 relative">
                 <div className="relative w-full max-w-md mx-auto aspect-[3/4] overflow-visible rounded-md transition-transform duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-1">
-                  <Image src={'/images/inlocker/экран авторизации.png'} alt={'Модуль управления'} fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="(max-width: 1024px) 80vw, 35vw" />
+                  <Image src={'/images/inlocker/auth.png'} alt={'Модуль управления'} fill className="object-contain pointer-events-none drop-shadow-[0_2px_6px_rgba(0,0,0,0.08)] group-hover:drop-shadow-[0_12px_28px_rgba(22,180,85,0.35)]" sizes="(max-width: 1024px) 80vw, 35vw" />
                 </div>
               </div>
             </div>

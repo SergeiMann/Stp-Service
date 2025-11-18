@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { rateLimit } from '@/lib/rate-limit'
+import { equipmentCodeToLabel } from '@/lib/contact'
 import { sendContactEmail } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
@@ -53,7 +54,8 @@ async function createBitrixLead(data: ContactFormData) {
     NAME: data.name,
     PHONE: [{ VALUE: data.phone, VALUE_TYPE: 'WORK' }],
     COMMENTS:
-      data.message + (data.equipment ? `\nОборудование: ${data.equipment}` : ''),
+      data.message +
+      (data.equipment ? `\nОборудование: ${equipmentCodeToLabel(data.equipment) || data.equipment}` : ''),
     SOURCE_ID: 'WEB',
   }
 

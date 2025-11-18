@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import { env } from './env'
+import { equipmentCodeToLabel } from './contact'
 
 export interface ContactEmailPayload {
   name: string
@@ -49,6 +50,7 @@ export async function sendContactEmail(data: ContactEmailPayload) {
   }
 
   const subject = `Заявка с сайта: ${data.name} (${data.phone})`
+  const equipmentLabel = equipmentCodeToLabel(data.equipment)
 
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#111">
@@ -64,7 +66,11 @@ export async function sendContactEmail(data: ContactEmailPayload) {
         </tr>
         ${data.email ? `<tr><td style="color:#555">Email</td><td>${escapeHtml(data.email)}</td></tr>` : ''}
         ${data.company ? `<tr><td style="color:#555">Компания</td><td>${escapeHtml(data.company)}</td></tr>` : ''}
-        ${data.equipment ? `<tr><td style="color:#555">Оборудование</td><td>${escapeHtml(data.equipment)}</td></tr>` : ''}
+        ${
+          equipmentLabel
+            ? `<tr><td style="color:#555">Оборудование</td><td>${escapeHtml(equipmentLabel)}</td></tr>`
+            : ''
+        }
       </table>
 
       <div style="margin-top:16px">
@@ -82,7 +88,7 @@ export async function sendContactEmail(data: ContactEmailPayload) {
     `Телефон: ${data.phone}`,
     data.email ? `Email: ${data.email}` : undefined,
     data.company ? `Компания: ${data.company}` : undefined,
-    data.equipment ? `Оборудование: ${data.equipment}` : undefined,
+    equipmentLabel ? `Оборудование: ${equipmentLabel}` : undefined,
     '',
     'Сообщение:',
     data.message,
