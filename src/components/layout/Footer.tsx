@@ -123,9 +123,6 @@ export function Footer() {
             <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
               Политика конфиденциальности
             </Link>
-            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
-              Условия использования
-            </Link>
           </div>
         </div>
       </div>
