@@ -275,21 +275,22 @@ export async function syncThinkLinkToDb(): Promise<ThinkLinkSyncResult> {
     }
   }
 
-  const catalogBySourceId = new Map<number, ThinkLinkCatalogItem>()
-  for (const c of catalog) {
-    catalogBySourceId.set(c.sourceId, c)
-  }
-
   // Сначала уровни 1, потом 2, потом 3
-  const sortedCatalog = [...catalog].sort((a, b) => a.level - b.level)
+  const sortedCatalog = [...catalog].sort(
+    (a, b) => Number((a as any).level) - Number((b as any).level)
+  )
 
   for (const cat of sortedCatalog) {
-    const existing = categoryByExternalId.get(cat.sourceId)
+    const level = Number((cat as any).level)
+    const sourceId = Number((cat as any).sourceId)
+    const parentSourceId = cat.parentId ? Number((cat as any).parentId) : 0
+
+    const existing = categoryByExternalId.get(sourceId)
     const slug = slugify(cat.name)
 
     let parentId: string | null = null
-    if (cat.level > 1 && cat.parentId) {
-      const parent = categoryByExternalId.get(cat.parentId)
+    if (level > 1 && parentSourceId) {
+      const parent = categoryByExternalId.get(parentSourceId)
       parentId = parent ? parent.id : null
     }
 
@@ -301,14 +302,14 @@ export async function syncThinkLinkToDb(): Promise<ThinkLinkSyncResult> {
           description: null,
           image: null,
           externalSource: THINKLINK_SOURCE,
-          externalCatalogId: cat.sourceId,
-          externalLevel: cat.level,
+          externalCatalogId: sourceId,
+          externalLevel: level,
           parentId: parentId ?? undefined,
-          sortOrder: cat.level * 1000 + cat.sourceId,
+          sortOrder: level * 1000 + sourceId,
           isActive: true,
         },
       })
-      categoryByExternalId.set(cat.sourceId, created)
+      categoryByExternalId.set(sourceId, created)
       result.categoriesCreated++
     } else {
       const updated = await (prisma as any).category.update({
@@ -316,11 +317,11 @@ export async function syncThinkLinkToDb(): Promise<ThinkLinkSyncResult> {
         data: {
           name: cat.name,
           slug,
-          externalLevel: cat.level,
+          externalLevel: level,
           parentId: parentId ?? undefined,
         },
       })
-      categoryByExternalId.set(cat.sourceId, updated)
+      categoryByExternalId.set(sourceId, updated)
       result.categoriesUpdated++
     }
   }
