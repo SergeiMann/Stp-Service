@@ -114,11 +114,17 @@ async function thinkLinkRequest<T>(
     method: 'GET',
   })
 
-  if (!res.ok) {
-    throw new Error(`ThinkLink HTTP ${res.status} for ${method}`)
+  // У ThinkLink ошибки могут приходить с HTTP 404, но с валидным JSON и OperationStatus != OK.
+  // Поэтому сначала пробуем прочитать тело как JSON, даже если статус не 2xx.
+  let data: ThinkLinkResponse<T>
+  try {
+    data = (await res.json()) as ThinkLinkResponse<T>
+  } catch (e) {
+    if (!res.ok) {
+      throw new Error(`ThinkLink HTTP ${res.status} for ${method}`)
+    }
+    throw e
   }
-
-  const data = (await res.json()) as ThinkLinkResponse<T>
 
   if (data.OperationStatus !== 'OK') {
     throw new Error(
