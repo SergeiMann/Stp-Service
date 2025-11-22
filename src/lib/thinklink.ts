@@ -331,7 +331,6 @@ export async function syncThinkLinkToDb(): Promise<ThinkLinkSyncResult> {
         where: { id: existing.id },
         data: {
           name: cat.name,
-          slug,
           externalLevel: level,
           parentId: parentId ?? undefined,
         },
@@ -357,26 +356,39 @@ export async function syncThinkLinkToDb(): Promise<ThinkLinkSyncResult> {
 
     if (!brandByCode.has(code)) {
       const name = item.brand.tl_name || code
-      const slug = slugify(name)
-      const created = await (prisma as any).brand.create({
-        data: {
-          name,
-          slug,
-          externalCode: code,
-          isActive: true,
-        },
-      })
+      const baseSlug = slugify(name)
+
+      const createBrand = async (slugToUse: string) =>
+        (prisma as any).brand.create({
+          data: {
+            name,
+            slug: slugToUse,
+            externalCode: code,
+            isActive: true,
+          },
+        })
+
+      let created
+      try {
+        created = await createBrand(baseSlug)
+      } catch (e: any) {
+        if (e && e.code === 'P2002' && e.meta?.target?.includes?.('slug')) {
+          const altSlug = `${baseSlug}-${code.toLowerCase()}`
+          created = await createBrand(altSlug)
+        } else {
+          throw e
+        }
+      }
+
       brandByCode.set(code, created)
       result.brandsCreated++
     } else {
       const existing = brandByCode.get(code)!
       const name = item.brand.tl_name || existing.name
-      const slug = slugify(name)
       const updated = await (prisma as any).brand.update({
         where: { id: existing.id },
         data: {
           name,
-          slug,
         },
       })
       brandByCode.set(code, updated)
