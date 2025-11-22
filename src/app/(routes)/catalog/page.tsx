@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-// import { ProductGrid } from '@/components/catalog/ProductGrid'
+import { ProductGrid } from '@/components/catalog/ProductGrid'
 import { CatalogSidebar } from '@/components/catalog/CatalogSidebar'
 import { Button } from '@/components/ui/Button'
 import { PageLayout } from '@/components/layout/PageLayout'
@@ -103,22 +103,12 @@ export default function CatalogPage() {
           {/* Main Content */}
           <div className="flex-1 min-w-0">
             <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/30">
-              {/* Временная заглушка вместо сетки товаров для прод-запуска */}
-              <div className="flex items-center justify-center py-24">
-                <p className="text-xl sm:text-2xl font-semibold text-slate-200 text-center">
-                  Скоро здесь появится много крутых предложений
-                </p>
-              </div>
-              {/**
-               * Оригинальный рендер каталога. Вернуть, когда будет готов API/данные.
-               *
-               * <ProductGrid
-               *   searchQuery={searchQuery}
-               *   selectedCategory={selectedCategory}
-               *   selectedBrand={selectedBrand}
-               *   priceRange={priceRange}
-               * />
-               */}
+              <ProductGrid
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                selectedBrand={selectedBrand}
+                priceRange={priceRange}
+              />
             </div>
           </div>
         </div>

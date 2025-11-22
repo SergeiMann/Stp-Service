@@ -25,21 +25,63 @@ export async function GET() {
       }
     })
 
-    const formattedCategories = categories.map(category => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      description: category.description,
-      image: category.image,
-      parentId: category.parentId,
-      productsCount: category._count.products,
-      sortOrder: category.sortOrder,
-      isActive: category.isActive
-    }))
+    // Плоский список → дерево категорий (parentId -> children)
+    type CategoryNode = {
+      id: string
+      name: string
+      slug: string
+      description: string | null
+      image: string | null
+      parentId: string | null
+      productsCount: number
+      sortOrder: number
+      isActive: boolean
+      children?: CategoryNode[]
+    }
+
+    const byId = new Map<string, CategoryNode>()
+    const roots: CategoryNode[] = []
+
+    for (const category of categories) {
+      byId.set(category.id, {
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        image: category.image,
+        parentId: category.parentId,
+        productsCount: category._count.products,
+        sortOrder: category.sortOrder,
+        isActive: category.isActive,
+        children: [],
+      })
+    }
+
+    for (const category of categories) {
+      const node = byId.get(category.id)!
+      if (category.parentId && byId.has(category.parentId)) {
+        const parent = byId.get(category.parentId)!
+        if (!parent.children) parent.children = []
+        parent.children.push(node)
+      } else {
+        roots.push(node)
+      }
+    }
+
+    // Сортируем детей по sortOrder
+    const sortTree = (nodes: CategoryNode[]) => {
+      nodes.sort((a, b) => a.sortOrder - b.sortOrder)
+      for (const n of nodes) {
+        if (n.children && n.children.length > 0) {
+          sortTree(n.children)
+        }
+      }
+    }
+    sortTree(roots)
 
     return NextResponse.json({
       success: true,
-      data: formattedCategories
+      data: roots
     })
   } catch (error) {
     console.error('Categories API Error:', error)

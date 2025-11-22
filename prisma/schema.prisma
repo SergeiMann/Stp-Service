@@ -17,6 +17,11 @@ model Category {
   slug          String    @unique
   description   String?
   image         String?
+  // Привязка к внешнему каталогу ThinkLink
+  externalSource     String?   // например, 'THINKLINK'
+  externalCatalogId  Int?      @unique
+  externalLevel      Int?
+
   parentId      String?
   parent        Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children      Category[] @relation("CategoryHierarchy")
@@ -38,6 +43,8 @@ model Brand {
   id            String    @id @default(cuid())
   name          String
   slug          String    @unique
+  // Код бренда в ThinkLink (brand.code)
+  externalCode  String?   @unique
   logo          String?
   description   String?
   website       String?
@@ -77,8 +84,14 @@ model Product {
   description       String?
   shortDescription  String?
   sku               String    @unique
+  // Привязка к товару ThinkLink
+  externalSource    String?   // например, 'THINKLINK'
+  externalItemId    String?   @unique
+  // Цена и валюта
   price             Float
   oldPrice          Float?
+  currency          String?   // 'RUR', 'USD', 'EUR' и т.п.
+  isGplPrice        Boolean?  // IsGPLPrice из ThinkLink
   isNew             Boolean   @default(false)
   isFeatured        Boolean   @default(false)
   isAvailable       Boolean   @default(true)
