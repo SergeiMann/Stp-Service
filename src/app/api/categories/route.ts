@@ -7,7 +7,10 @@ export async function GET() {
   try {
     const categories = await prisma.category.findMany({
       where: {
-        isActive: true
+        isActive: true,
+        // В сайдбаре показываем только наши "логические" категории,
+        // а не технические уровни каталога из ThinkLink
+        externalSource: null,
       },
       include: {
         _count: {

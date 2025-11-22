@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 
 interface Category {
   id: string
@@ -50,6 +51,7 @@ export function CatalogSidebar({
   const [localPriceRange, setLocalPriceRange] = useState({ min: 0, max: 200000 })
   const [actualPriceRange, setActualPriceRange] = useState({ min: 0, max: 200000 })
   const [tempSearchQuery, setTempSearchQuery] = useState(searchQuery)
+  const [brandsModalOpen, setBrandsModalOpen] = useState(false)
   
   // Используем внешний priceRange если передан, иначе локальный
   const priceRange = externalPriceRange || localPriceRange
@@ -190,6 +192,10 @@ export function CatalogSidebar({
       : selectedBrand === brandId
   }
 
+  const MAX_BRANDS_INLINE = 10
+  const visibleBrands = useMemo(() => brands.slice(0, MAX_BRANDS_INLINE), [brands])
+  const hasMoreBrands = brands.length > MAX_BRANDS_INLINE
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -319,7 +325,7 @@ export function CatalogSidebar({
                 <span className="text-gray-300">Все бренды</span>
               </label>
               
-              {brands.map((brand) => (
+              {visibleBrands.map((brand) => (
                 <label key={brand.id} className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -339,6 +345,16 @@ export function CatalogSidebar({
                   <span className="text-sm text-gray-300">{brand.name}</span>
                 </label>
               ))}
+
+              {hasMoreBrands && (
+                <button
+                  type="button"
+                  onClick={() => setBrandsModalOpen(true)}
+                  className="text-xs text-blue-300 hover:text-blue-100 underline mt-2"
+                >
+                  Показать все бренды
+                </button>
+              )}
             </div>
           </div>
 
@@ -465,6 +481,47 @@ export function CatalogSidebar({
           </div>
         </div>
       </div>
+
+      {/* Модальное окно со всеми брендами */}
+      <Modal
+        isOpen={brandsModalOpen}
+        onClose={() => setBrandsModalOpen(false)}
+        title="Все бренды"
+        className="max-h-[80vh]"
+      >
+        <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-1">
+          <label className="flex items-center gap-3 cursor-pointer mb-2">
+            <input
+              type="checkbox"
+              checked={selectedBrand === 'all'}
+              onChange={() => setSelectedBrand('all')}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-gray-800 font-medium text-sm">Все бренды</span>
+          </label>
+
+          {brands.map((brand) => (
+            <label key={brand.id} className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isBrandSelected(brand.id)}
+                onChange={() => handleBrandChange(brand.id)}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center flex-shrink-0 border border-gray-200">
+                <Image
+                  src={brand.logo}
+                  alt={brand.name}
+                  width={22}
+                  height={22}
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-sm text-gray-800">{brand.name}</span>
+            </label>
+          ))}
+        </div>
+      </Modal>
     </>
   )
 }
