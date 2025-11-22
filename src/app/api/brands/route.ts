@@ -29,7 +29,8 @@ export async function GET() {
       id: brand.id,
       name: brand.name,
       slug: brand.slug,
-      logo: brand.logo,
+      // Логотип может отсутствовать у брендов из ThinkLink — подставляем заглушку
+      logo: brand.logo || '/images/brands/generic-logo.svg',
       description: brand.description,
       website: brand.website,
       productsCount: brand._count.products,
