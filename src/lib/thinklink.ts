@@ -295,20 +295,35 @@ export async function syncThinkLinkToDb(): Promise<ThinkLinkSyncResult> {
     }
 
     if (!existing) {
-      const created = await (prisma as any).category.create({
-        data: {
-          name: cat.name,
-          slug,
-          description: null,
-          image: null,
-          externalSource: THINKLINK_SOURCE,
-          externalCatalogId: sourceId,
-          externalLevel: level,
-          parentId: parentId ?? undefined,
-          sortOrder: level * 1000 + sourceId,
-          isActive: true,
-        },
-      })
+      const createCategory = async (slugToUse: string) =>
+        (prisma as any).category.create({
+          data: {
+            name: cat.name,
+            slug: slugToUse,
+            description: null,
+            image: null,
+            externalSource: THINKLINK_SOURCE,
+            externalCatalogId: sourceId,
+            externalLevel: level,
+            parentId: parentId ?? undefined,
+            sortOrder: level * 1000 + sourceId,
+            isActive: true,
+          },
+        })
+
+      let created
+      try {
+        created = await createCategory(slug)
+      } catch (e: any) {
+        // slug уже занят (например, нашей ручной категорией) — добавляем sourceId для уникальности
+        if (e && e.code === 'P2002' && e.meta?.target?.includes?.('slug')) {
+          const altSlug = `${slug}-${sourceId}`
+          created = await createCategory(altSlug)
+        } else {
+          throw e
+        }
+      }
+
       categoryByExternalId.set(sourceId, created)
       result.categoriesCreated++
     } else {
