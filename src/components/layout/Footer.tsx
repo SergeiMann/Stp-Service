@@ -46,14 +46,6 @@ export function Footer() {
               Профессиональный ремонт и обслуживание оборудования для маркировки и сбора данных. 
               Более 15 лет опыта работы с ведущими брендами.
             </p>
-            <div className="flex space-x-4">
-              <a href="https://t.me/stp_sc_bot" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                <i className="fab fa-telegram text-xl"></i>
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <i className="fab fa-whatsapp text-xl"></i>
-              </a>
-            </div>
           </div>
 
           {/* Services */}

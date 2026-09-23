@@ -5,6 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import { SITE_CONFIG } from '@/lib/constants'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { CookieNotice } from '@/components/ui/CookieNotice'
 import { CartProvider } from '@/contexts/CartContext'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -84,6 +85,7 @@ export default function RootLayout({
               <main>{children}</main>
               <BackToTop />
               <Footer />
+              <CookieNotice />
             </CartProvider>
           </AuthProvider>
         </ToastProvider>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 
@@ -30,6 +31,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
   
   const [errors, setErrors] = useState<Partial<FormData>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [personalDataConsent, setPersonalDataConsent] = useState(false)
   const { addToast } = useToast()
 
   // Форматирование телефона под маску +7 (xxx) xxx-xx-xx с автозаменой 8→+7
@@ -108,7 +110,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!validateForm()) return
+    if (!validateForm() || !personalDataConsent) return
 
     setIsSubmitting(true)
     
@@ -295,9 +297,26 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
         </div>
 
         {/* Submit Button */}
+        <label className="flex items-start gap-3 text-sm text-white">
+          <input
+            type="checkbox"
+            checked={personalDataConsent}
+            onChange={(e) => setPersonalDataConsent(e.target.checked)}
+            required
+            className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span>
+            Согласен(на) на обработку персональных данных в соответствии с{' '}
+            <Link href="/privacy" className="text-blue-300 underline hover:text-blue-200">
+              Политикой обработки персональных данных
+            </Link>
+            .
+          </span>
+        </label>
+
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !personalDataConsent}
           className="w-full"
         >
           {isSubmitting ? 'Отправка...' : 'Отправить заявку'}

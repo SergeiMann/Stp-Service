@@ -10,10 +10,14 @@ export function middleware(_req: NextRequest) {
   res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
 
   // Разрешаем критичные для Next.js inline-скрипты и внешние стили (Google Fonts/CDNJS)
+  const scriptPolicy = process.env.NODE_ENV === 'development'
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'"
+
   const csp = [
     "default-src 'self'",
     "img-src 'self' data: https:",
-    "script-src 'self' 'unsafe-inline'",
+    scriptPolicy,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "connect-src 'self' https:",
     "font-src 'self' data: https://fonts.gstatic.com",
