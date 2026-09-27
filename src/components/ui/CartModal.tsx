@@ -123,7 +123,7 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
           {/* Итого */}
           <div className="border-t border-gray-200 pt-4">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold text-gray-900">Итого:</span>
+              <span className="text-lg font-semibold text-gray-900">Предварительно:</span>
               <span className="text-xl font-bold text-blue-600">
                 {total.toLocaleString('ru-RU')} ₽
               </span>
@@ -145,7 +145,7 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
                 onClick={handleCheckout}
                 className="flex-1"
               >
-                Оформить заказ
+                Оставить заявку
               </Button>
             </div>
           </div>
@@ -154,7 +154,7 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
             <p className="text-xs text-blue-700">
               <i className="fas fa-info-circle mr-1"></i>
-              Товары резервируются на 30 минут. Для оформления заказа заполните контактную информацию.
+              Отправьте выбранные позиции и количество. Менеджер свяжется с вами, уточнит наличие и стоимость.
             </p>
           </div>
         </div>

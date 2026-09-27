@@ -40,6 +40,8 @@ interface Order {
   customerName: string
   customerEmail: string
   customerPhone: string
+  company?: string
+  notes?: string
   total: number
   status: string
   createdAt: string
@@ -61,6 +63,8 @@ export default function AdminPageClient() {
   const [products, setProducts] = useState<Product[]>([])
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
+  const [syncMessage, setSyncMessage] = useState('')
   const { addToast } = useToast()
 
   useEffect(() => {
@@ -97,6 +101,23 @@ export default function AdminPageClient() {
       console.error('Ошибка загрузки данных:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const syncCatalog = async () => {
+    if (syncing) return
+    setSyncing(true)
+    setSyncMessage('Загружаем каталог. Это может занять несколько минут.')
+    try {
+      const response = await fetch('/api/admin/thinklink/sync', { method: 'POST' })
+      const result = await response.json()
+      if (!response.ok || !result.success) throw new Error(result.error || 'Синхронизация не выполнена')
+      setSyncMessage('Создано товаров: ' + result.data.productsCreated + '. Обновлено: ' + result.data.productsUpdated + '.')
+      await loadData()
+    } catch (error) {
+      setSyncMessage(error instanceof Error ? error.message : 'Синхронизация не выполнена')
+    } finally {
+      setSyncing(false)
     }
   }
 
@@ -220,9 +241,18 @@ export default function AdminPageClient() {
             activeTab === 'orders' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Заказы ({orders.length})
+          Заявки на товары ({orders.length})
         </button>
       </div>
+
+      <Card className="p-4 mb-6">
+        <h2 className="font-semibold mb-2">Каталог ThinkLink</h2>
+        <p className="text-sm text-gray-600 mb-3">Загрузка товаров, цен с наценкой 10% и остатков поставщика.</p>
+        <Button onClick={syncCatalog} disabled={syncing} variant="outline">
+          {syncing ? 'Синхронизация…' : 'Обновить каталог'}
+        </Button>
+        {syncMessage && <p className="mt-3 text-sm" role="status">{syncMessage}</p>}
+      </Card>
 
       {activeTab === 'requests' && (
         <div className="space-y-4">
@@ -341,13 +371,13 @@ export default function AdminPageClient() {
       {activeTab === 'orders' && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Управление заказами</h2>
+            <h2 className="text-xl font-semibold">Заявки на товары</h2>
             <Button onClick={loadData} variant="outline">Обновить</Button>
           </div>
 
           {orders.length === 0 ? (
             <Card className="p-8 text-center">
-              <p className="text-gray-500">Заказов пока нет</p>
+              <p className="text-gray-500">Заявок на товары пока нет</p>
             </Card>
           ) : (
             <div className="grid gap-4">
@@ -355,10 +385,12 @@ export default function AdminPageClient() {
                 <Card key={order.id} className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-semibold text-lg">Заказ #{order.orderNumber}</h3>
+                      <h3 className="font-semibold text-lg">Заявка #{order.orderNumber}</h3>
                       <p className="text-gray-600">{order.customerName}</p>
                       <p className="text-gray-600">{order.customerPhone}</p>
                       <p className="text-gray-600">{order.customerEmail}</p>
+                      {order.company && <p className="text-gray-600">{order.company}</p>}
+                      {order.notes && <p className="text-gray-700 whitespace-pre-wrap mt-2">{order.notes}</p>}
                     </div>
                     <div className="text-right">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>{getStatusText(order.status)}</span>

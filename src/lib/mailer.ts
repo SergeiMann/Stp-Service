@@ -122,6 +122,61 @@ export async function sendContactEmail(data: ContactEmailPayload) {
   return info
 }
 
+export interface PurchaseEmailPayload {
+  orderNumber: string
+  customerName: string
+  customerPhone: string
+  customerEmail: string
+  company: string | null
+  notes: string | null
+  total: number
+  items: {
+    quantity: number
+    price: number
+    total: number
+    product: { name: string; sku: string }
+  }[]
+}
+
+export async function sendPurchaseEmail(data: PurchaseEmailPayload) {
+  const money = (value: number) => `${value.toLocaleString('ru-RU')} ₽`
+  const text = [
+    `Новая заявка на покупку ${data.orderNumber}`,
+    `Имя: ${data.customerName}`,
+    `Телефон: ${data.customerPhone}`,
+    data.customerEmail ? `Email: ${data.customerEmail}` : '',
+    data.company ? `Компания: ${data.company}` : '',
+    '',
+    'Выбранные товары:',
+    ...data.items.map((item, index) =>
+      `${index + 1}. ${item.product.name} (артикул: ${item.product.sku}) — ${item.quantity} × ${money(item.price)} = ${money(item.total)}`
+    ),
+    '',
+    `Предварительная сумма: ${money(data.total)}`,
+    data.notes ? `Комментарий: ${data.notes}` : '',
+    '',
+    'Наличие и окончательную стоимость необходимо подтвердить. Заявка не резервирует товары и не требует оплаты.',
+  ].join('\n')
+
+  const transporter = createSmtpTransport()
+  try {
+    const info = await transporter.sendMail({
+      from: { name: 'STP-Service', address: env.SMTP_FROM },
+      to: env.CONTACT_TO,
+      subject: `Заявка на покупку: ${data.orderNumber}`,
+      text,
+      html: `<div style="font-family:Arial,Helvetica,sans-serif;white-space:pre-wrap">${escapeHtml(text)}</div>`,
+      replyTo: data.customerEmail
+        ? { name: data.customerName, address: data.customerEmail }
+        : undefined,
+    })
+    if (!info.accepted?.length) throw new Error('Purchase email was not accepted')
+    return info
+  } finally {
+    transporter.close()
+  }
+}
+
 function escapeHtml(input: string) {
   return input
     .replace(/&/g, '&amp;')

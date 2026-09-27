@@ -1,53 +1,25 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-
+import { catalogWhere } from '@/lib/catalog-filter'
 export const dynamic = 'force-dynamic'
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const where = await catalogWhere(request.nextUrl.searchParams, 'brand')
     const brands = await prisma.brand.findMany({
-      where: {
-        isActive: true
-      },
-      include: {
-        _count: {
-          select: {
-            products: {
-              where: {
-                isAvailable: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: {
-        name: 'asc'
-      }
+      include: { _count: { select: { products: { where } } } },
+      orderBy: { name: 'asc' },
     })
-
-    const formattedBrands = brands.map(brand => ({
-      id: brand.id,
-      name: brand.name,
-      slug: brand.slug,
-      // Логотип может отсутствовать у брендов из ThinkLink — подставляем заглушку
-      logo: brand.logo || '/images/brands/generic-logo.svg',
-      description: brand.description,
-      website: brand.website,
-      productsCount: brand._count.products,
-      isActive: brand.isActive
-    }))
-
     return NextResponse.json({
       success: true,
-      data: formattedBrands
+      data: brands.map(b => ({
+        ...b,
+        logo: b.logo || '/images/brands/generic-logo.svg',
+        productsCount: b._count.products,
+      })),
     })
-  } catch (error) {
-    console.error('Brands API Error:', error)
+  } catch {
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Ошибка при получении брендов' 
-      },
+      { success: false, error: 'Не удалось загрузить бренды' },
       { status: 500 }
     )
   }

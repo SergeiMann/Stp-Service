@@ -16,10 +16,12 @@ const envSchema = z.object({
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z
     .string()
+    .optional()
     .transform((v) => (v ? Number(v) : undefined))
     .pipe(z.number().optional()),
   SMTP_SECURE: z
     .string()
+    .optional()
     .transform((v) => (v ? v === 'true' || v === '1' : undefined))
     .pipe(z.boolean().optional()),
   SMTP_USER: z.string().optional(),

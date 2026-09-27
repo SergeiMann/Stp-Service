@@ -122,6 +122,7 @@ export function PageLayout({
               {/* Cart */}
               <button 
                 onClick={() => setIsCartOpen(true)}
+                aria-label="Корзина"
                 className={`relative p-2 ${isLight ? 'text-gray-700 hover:text-emerald-700' : 'text-gray-300 hover:text-blue-300'} transition-colors`}
               >
                 <i className="fas fa-shopping-cart text-xl"></i>
@@ -136,6 +137,10 @@ export function PageLayout({
             </div>
 
             {/* Mobile menu button */}
+            <button onClick={() => setIsCartOpen(true)} aria-label="Корзина"
+              className={`lg:hidden p-2 ${isLight ? 'text-gray-800' : 'text-white'}`}>
+              <i className="fas fa-shopping-cart mr-1"></i>{itemCount}
+            </button>
             <button
               className={`lg:hidden p-2 rounded-md ${isLight ? 'text-gray-800 hover:text-emerald-700' : 'text-white hover:text-blue-300'}`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}

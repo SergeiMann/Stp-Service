@@ -1,15 +1,16 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { PageLayout } from '@/components/layout/PageLayout'
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderNumber = searchParams?.get('orderNumber')
-  const [countdown, setCountdown] = useState(10)
+
 
   useEffect(() => {
     if (!orderNumber) {
@@ -17,17 +18,7 @@ function OrderSuccessContent() {
       return
     }
 
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          router.push('/')
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
 
-    return () => clearInterval(timer)
   }, [orderNumber, router])
 
   if (!orderNumber) {
@@ -35,13 +26,13 @@ function OrderSuccessContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-12 text-white">
       <div className="max-w-2xl mx-auto text-center">
-        <Card className="p-8">
+        <Card className="p-6 sm:p-8 bg-white/10 backdrop-blur-sm rounded-xl border-white/20">
           {/* Иконка успеха */}
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 bg-green-500/15 border border-green-400/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg 
-              className="w-8 h-8 text-green-600" 
+              className="w-8 h-8 text-green-300" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -55,28 +46,24 @@ function OrderSuccessContent() {
             </svg>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Заказ успешно оформлен!
-          </h1>
-          
-          <p className="text-lg text-gray-600 mb-6">
-            Ваш заказ <span className="font-semibold text-blue-600">#{orderNumber}</span> принят в обработку
+          <p className="text-lg text-gray-300 mb-6">
+            Ваша заявка <span className="font-semibold text-blue-300 break-words">#{orderNumber}</span> принята в обработку
           </p>
           
-          <div className="bg-blue-50 rounded-lg p-6 mb-8">
-            <h2 className="font-semibold text-blue-900 mb-3">Что дальше?</h2>
-            <div className="text-left space-y-2 text-blue-800">
+          <div className="bg-blue-600/10 border border-blue-400/20 rounded-lg p-6 mb-8">
+            <h2 className="font-semibold text-blue-300 mb-3">Что дальше?</h2>
+            <div className="text-left space-y-2 text-gray-300">
               <div className="flex items-start">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">1</span>
-                <p>Мы свяжемся с вами в течение 30 минут для подтверждения заказа</p>
+                <span className="flex-shrink-0 w-6 h-6 bg-blue-500/20 text-blue-200 rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">1</span>
+                <p>Менеджер свяжется с вами по указанным контактам</p>
               </div>
               <div className="flex items-start">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">2</span>
-                <p>Уточним детали доставки и способ оплаты</p>
+                <span className="flex-shrink-0 w-6 h-6 bg-blue-500/20 text-blue-200 rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">2</span>
+                <p>Проверим наличие выбранных товаров и нужного количества</p>
               </div>
               <div className="flex items-start">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">3</span>
-                <p>Подготовим ваш заказ и отправим или передадим для самовывоза</p>
+                <span className="flex-shrink-0 w-6 h-6 bg-blue-500/20 text-blue-200 rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">3</span>
+                <p>Согласуем стоимость, сроки поставки и дальнейшее оформление</p>
               </div>
             </div>
           </div>
@@ -86,6 +73,7 @@ function OrderSuccessContent() {
               <Button 
                 onClick={() => router.push('/catalog')}
                 variant="outline"
+                className="border-blue-400 text-blue-300 hover:bg-blue-600 hover:text-white"
               >
                 Продолжить покупки
               </Button>
@@ -96,14 +84,12 @@ function OrderSuccessContent() {
               </Button>
             </div>
             
-            <p className="text-sm text-gray-500">
-              Автоматическое перенаправление через {countdown} сек.
-            </p>
+
           </div>
           
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-3">Контактная информация</h3>
-            <div className="text-sm text-gray-600 space-y-1">
+          <div className="mt-8 pt-6 border-t border-white/20">
+            <h3 className="font-semibold text-white mb-3">Контактная информация</h3>
+            <div className="text-sm text-gray-300 space-y-1">
               <p>📞 +7 (495) 255-08-54</p>
               <p>📧 info@stp-service.com</p>
               <p>🕒 пн-пт 10:00-19:00; сб, вс — выходной день</p>
@@ -117,8 +103,10 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessPage() {
   return (
-    <Suspense fallback={<div>Загрузка...</div>}>
-      <OrderSuccessContent />
-    </Suspense>
+    <PageLayout title="Заявка отправлена!">
+      <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center text-gray-300" role="status">Загрузка...</div>}>
+        <OrderSuccessContent />
+      </Suspense>
+    </PageLayout>
   )
 }

@@ -1,191 +1,75 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/auth'
+import { inquirySchema, mergeInquiryItems } from '@/lib/order-inquiry'
+import { randomUUID } from 'node:crypto'
+import { sendPurchaseEmail } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
 
-interface OrderData {
-  customerName: string
-  customerEmail: string
-  customerPhone: string
-  company?: string
-  deliveryMethod?: string
-  deliveryAddress?: string
-  paymentMethod?: string
-  notes?: string
-  items: {
-    productId: string
-    quantity: number
-    price: number
-  }[]
-}
-
+// A callback inquiry records interest; it does not reserve supplier stock.
 export async function POST(request: NextRequest) {
+  const parsed = inquirySchema.safeParse(await request.json().catch(() => null))
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: parsed.error.issues[0]?.message || 'Проверьте данные заявки' }, { status: 400 })
+  }
+  const body = parsed.data
+  const items = mergeInquiryItems(body.items)
+  if (items.some(item => item.quantity > 1000000)) {
+    return NextResponse.json({ success: false, error: 'Слишком большое количество товара' }, { status: 400 })
+  }
   try {
-    const body: OrderData = await request.json()
-    
-    // Валидация обязательных полей
-    if (!body.customerName || !body.customerEmail || !body.customerPhone || !body.items?.length) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Заполните все обязательные поля и добавьте товары в заказ' 
-        },
-        { status: 400 }
-      )
-    }
-    
-    // Валидация email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(body.customerEmail)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Некорректный формат email' 
-        },
-        { status: 400 }
-      )
-    }
-    
-    // Валидация телефона
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/
-    if (!phoneRegex.test(body.customerPhone)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Некорректный формат телефона' 
-        },
-        { status: 400 }
-      )
-    }
-    
-    // Проверка существования товаров и расчет общей суммы
-    let totalAmount = 0
-    const validatedItems: Array<{
-      productId: string
-      quantity: number
-      price: number
-      total: number
-    }> = []
-    
-    for (const item of body.items) {
-      const product = await prisma.product.findUnique({
-        where: { id: item.productId },
-        select: { id: true, name: true, price: true, stock: true, isAvailable: true }
+    const order = await prisma.$transaction(async tx => {
+      const products = await tx.product.findMany({ where: { id: { in: items.map(item => item.productId) } } })
+      if (products.length !== items.length) throw new Error('PRODUCT_NOT_FOUND')
+      const rows = items.map(item => {
+        const product = products.find(product => product.id === item.productId)!
+        if (!Number.isFinite(product.price) || product.price <= 0) throw new Error('INVALID_PRICE')
+        return { ...item, price: product.price, total: Math.round(product.price * item.quantity * 100) / 100 }
       })
-      
-      if (!product || !product.isAvailable) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: `Товар с ID ${item.productId} недоступен` 
-          },
-          { status: 400 }
-        )
-      }
-      
-      if (product.stock < item.quantity) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: `Недостаточно товара "${product.name}" на складе. Доступно: ${product.stock}` 
-          },
-          { status: 400 }
-        )
-      }
-      
-      const itemTotal = parseFloat(product.price.toString()) * item.quantity
-      totalAmount += itemTotal
-      
-      validatedItems.push({
-        productId: product.id,
-        quantity: item.quantity,
-        price: parseFloat(product.price.toString()),
-        total: itemTotal
-      })
-    }
-    
-    // Генерация номера заказа
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`
-    
-    // Создание заказа в транзакции
-    const order = await prisma.$transaction(async (tx: any) => {
-      // Создаем заказ
-      const newOrder = await tx.order.create({
-        data: {
-          orderNumber,
-          customerName: body.customerName.trim(),
-          customerEmail: body.customerEmail.trim(),
-          customerPhone: body.customerPhone.trim(),
-          company: body.company?.trim() || null,
-          total: totalAmount,
-          deliveryMethod: body.deliveryMethod || null,
-          deliveryAddress: body.deliveryAddress?.trim() || null,
-          paymentMethod: body.paymentMethod || null,
-          notes: body.notes?.trim() || null,
-          status: 'PENDING'
-        }
-      })
-      
-      // Создаем позиции заказа
-      for (const item of validatedItems) {
-        await tx.orderItem.create({
-          data: {
-            orderId: newOrder.id,
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.total
-          }
-        })
-        
-        // Уменьшаем остаток товара
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity
-            }
-          }
-        })
-      }
-      
-      return newOrder
+      const total = Math.round(rows.reduce((sum, item) => sum + item.total, 0) * 100) / 100
+      return tx.order.create({ data: {
+        orderNumber: 'REQ-' + randomUUID().toUpperCase(),
+        isInquiry: true,
+        customerName: body.customerName,
+        customerPhone: body.customerPhone,
+        customerEmail: body.customerEmail,
+        company: body.company || null,
+        notes: body.notes || null,
+        total,
+        status: 'PENDING',
+        items: { create: rows },
+      }, include: { items: { include: { product: { select: { name: true, sku: true } } } } } })
     })
-    
-    // Логирование
-    console.log('Новый заказ создан:', {
-      id: order.id,
-      orderNumber: order.orderNumber,
-      customer: order.customerName,
-      total: order.total,
-      itemsCount: validatedItems.length
-    })
-    
+    let emailSent = false
+    try {
+      await sendPurchaseEmail(order)
+      emailSent = true
+    } catch {
+      console.error('Purchase email notification failed', { orderId: order.id })
+    }
     return NextResponse.json({
       success: true,
-      message: 'Заказ успешно оформлен! Мы свяжемся с вами для подтверждения.',
-      data: {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        total: totalAmount,
-        status: 'PENDING'
-      }
+      message: emailSent
+        ? 'Заявка отправлена. Менеджер свяжется с вами по выбранным позициям.'
+        : 'Заявка сохранена. Почтовое уведомление не отправлено, но заявка доступна менеджеру. Повторная отправка не требуется.',
+      data: { orderId: order.id, orderNumber: order.orderNumber, total: order.total, status: order.status },
     })
-    
   } catch (error) {
-    console.error('Orders API Error:', error)
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Ошибка при создании заказа. Попробуйте еще раз.' 
-      },
-      { status: 500 }
-    )
+    if (error instanceof Error && ['PRODUCT_NOT_FOUND', 'INVALID_PRICE'].includes(error.message)) {
+      return NextResponse.json({ success: false, error: 'Данные товаров изменились. Обновите корзину.' }, { status: 400 })
+    }
+    console.error('Inquiry save failed')
+    return NextResponse.json({ success: false, error: 'Не удалось сохранить заявку. Попробуйте ещё раз.' }, { status: 500 })
   }
 }
 
 // Получение заказов (для админки и пользователей)
 export async function GET(request: NextRequest) {
+  const session = getSession()
+  if (!session || !['ADMIN', 'MANAGER'].includes(session.role)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const { searchParams } = new URL(request.url)
     const customerEmail = searchParams.get('customerEmail')
@@ -236,6 +120,7 @@ export async function GET(request: NextRequest) {
     const formattedOrders = orders.map((order: any) => ({
       id: order.id,
       orderNumber: order.orderNumber,
+      isInquiry: order.isInquiry,
       customerName: order.customerName,
       customerEmail: order.customerEmail,
       customerPhone: order.customerPhone,

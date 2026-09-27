@@ -12,6 +12,8 @@ export function ConditionalHeader() {
     '/about',
     '/services', 
     '/contacts',
+    '/checkout',
+    '/order-success',
     '/catalog',
     '/inlocker',
     '/privacy',

@@ -1,527 +1,217 @@
 'use client'
-
-import { useState, useEffect, useMemo } from 'react'
-import Image from 'next/image'
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
-
-interface Category {
+import { useState } from 'react'
+import { CatalogState } from '@/lib/catalog-state'
+export interface Category {
   id: string
-  name: string
   slug: string
-  children?: Category[]
-}
-
-interface Brand {
-  id: string
   name: string
-  logo: string
+  productsCount: number
+  children: Category[]
 }
-
-interface CatalogSidebarProps {
-  searchQuery: string
-  setSearchQuery: (query: string) => void
-  selectedCategory: string | string[]
-  setSelectedCategory: (category: string | string[]) => void
-  selectedBrand: string | string[]
-  setSelectedBrand: (brand: string | string[]) => void
-  priceRange?: { min: number; max: number }
-  setPriceRange?: (range: { min: number; max: number }) => void
-  onReset: () => void
-  isOpen?: boolean
-  onClose?: () => void
+export interface Brand {
+  id: string
+  slug: string
+  name: string
+  productsCount: number
 }
-
+export const field =
+  'w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-white'
 export function CatalogSidebar({
-  searchQuery,
-  setSearchQuery,
-  selectedCategory,
-  setSelectedCategory,
-  selectedBrand,
-  setSelectedBrand,
-  priceRange: externalPriceRange,
-  setPriceRange: setExternalPriceRange,
-  onReset,
-  isOpen = true,
-  onClose
-}: CatalogSidebarProps) {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [brands, setBrands] = useState<Brand[]>([])
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([])
-  const [localPriceRange, setLocalPriceRange] = useState({ min: 0, max: 200000 })
-  const [actualPriceRange, setActualPriceRange] = useState({ min: 0, max: 200000 })
-  const [tempSearchQuery, setTempSearchQuery] = useState(searchQuery)
-  const [brandsModalOpen, setBrandsModalOpen] = useState(false)
-  
-  // Используем внешний priceRange если передан, иначе локальный
-  const priceRange = externalPriceRange || localPriceRange
-  const setPriceRange = setExternalPriceRange || setLocalPriceRange
-  const [inStock, setInStock] = useState(false)
-  const [isNew, setIsNew] = useState(false)
-
-  useEffect(() => {
-    fetchFilters()
-  }, [])
-
-  useEffect(() => {
-    setTempSearchQuery(searchQuery)
-  }, [searchQuery])
-
-  useEffect(() => {
-    fetchPriceRange()
-  }, [selectedCategory, selectedBrand, searchQuery])
-
-  const fetchFilters = async () => {
-    try {
-      const [categoriesRes, brandsRes] = await Promise.all([
-        fetch('/api/categories'),
-        fetch('/api/brands')
-      ])
-      
-      const categoriesData = await categoriesRes.json()
-      const brandsData = await brandsRes.json()
-      
-      if (categoriesData.success) setCategories(categoriesData.data)
-      if (brandsData.success) setBrands(brandsData.data)
-    } catch (error) {
-      console.error('Error fetching filters:', error)
-    }
-  }
-
-  const fetchPriceRange = async () => {
-    try {
-      const params = new URLSearchParams()
-      
-      if (searchQuery) params.append('search', searchQuery)
-      
-      // Обработка множественного выбора категорий
-      if (selectedCategory && selectedCategory !== 'all') {
-        const categoryIds = Array.isArray(selectedCategory) 
-          ? selectedCategory.join(',') 
-          : selectedCategory
-        params.append('category', categoryIds)
-      }
-      
-      // Обработка множественного выбора брендов
-      if (selectedBrand && selectedBrand !== 'all') {
-        const brandIds = Array.isArray(selectedBrand) 
-          ? selectedBrand.join(',') 
-          : selectedBrand
-        params.append('brand', brandIds)
-      }
-      
-      const response = await fetch(`/api/products/price-range?${params.toString()}`)
-      const result = await response.json()
-      
-      if (result.success) {
-        const newRange = {
-          min: result.data.minPrice || 0,
-          max: result.data.maxPrice || 200000
-        }
-        setActualPriceRange(newRange)
-        
-        // Устанавливаем диапазон цен в границы найденных товаров
-        setPriceRange({
-          min: newRange.min,
-          max: newRange.max
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching price range:', error)
-    }
-  }
-
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategories(prev => 
-      prev.includes(categoryId) 
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
+  state,
+  change,
+  categories,
+  brands,
+  range,
+}: {
+  state: CatalogState
+  change: (s: Partial<CatalogState>) => void
+  categories: Category[]
+  brands: Brand[]
+  range: { minPrice: number | null; maxPrice: number | null }
+}) {
+  const [categorySearch, setCategorySearch] = useState('')
+  const [brandSearch, setBrandSearch] = useState('')
+  const [expanded, setExpanded] = useState<string[]>([])
+  const toggle = (key: 'category' | 'brand', id: string) =>
+    change({
+      [key]: state[key].includes(id)
+        ? state[key].filter(x => x !== id)
+        : [...state[key], id],
+    })
+  const matches = (c: Category): boolean =>
+    c.name.toLocaleLowerCase().includes(categorySearch.toLocaleLowerCase()) ||
+    c.children.some(matches)
+  function node(c: Category, path: string[] = []) {
+    if (
+      categorySearch &&
+      !matches(c) &&
+      !state.category.includes(c.id) &&
+      !state.category.includes(c.slug)
     )
-  }
-
-  const handleReset = () => {
-    setPriceRange({ min: actualPriceRange.min, max: actualPriceRange.max })
-    setInStock(false)
-    setIsNew(false)
-    setTempSearchQuery('')
-    onReset()
-  }
-
-  const handleSearchSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-    setSearchQuery(tempSearchQuery)
-  }
-
-  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearchSubmit()
-    }
-  }
-
-  const handleCategoryChange = (categoryId: string) => {
-    if (Array.isArray(selectedCategory)) {
-      const newSelection = selectedCategory.includes(categoryId)
-        ? selectedCategory.filter(id => id !== categoryId)
-        : [...selectedCategory, categoryId]
-      setSelectedCategory(newSelection.length === 0 ? 'all' : newSelection)
-    } else {
-      setSelectedCategory(categoryId === selectedCategory ? 'all' : [categoryId])
-    }
-  }
-
-  const handleBrandChange = (brandId: string) => {
-    if (Array.isArray(selectedBrand)) {
-      const newSelection = selectedBrand.includes(brandId)
-        ? selectedBrand.filter(id => id !== brandId)
-        : [...selectedBrand, brandId]
-      setSelectedBrand(newSelection.length === 0 ? 'all' : newSelection)
-    } else {
-      setSelectedBrand(brandId === selectedBrand ? 'all' : [brandId])
-    }
-  }
-
-  const isCategorySelected = (categoryId: string) => {
-    return Array.isArray(selectedCategory) 
-      ? selectedCategory.includes(categoryId)
-      : selectedCategory === categoryId
-  }
-
-  const isBrandSelected = (brandId: string) => {
-    return Array.isArray(selectedBrand) 
-      ? selectedBrand.includes(brandId)
-      : selectedBrand === brandId
-  }
-
-  const MAX_BRANDS_INLINE = 10
-  const visibleBrands = useMemo(() => brands.slice(0, MAX_BRANDS_INLINE), [brands])
-  const hasMoreBrands = brands.length > MAX_BRANDS_INLINE
-
-  return (
-    <>
-      {/* Mobile Overlay */}
-      {isOpen && onClose && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Sidebar */}
-      <div className={`
-        fixed lg:sticky top-0 left-0 h-screen lg:h-auto w-80 bg-white/10 backdrop-blur-sm border-r border-white/20 z-50 lg:z-auto
-        transform transition-transform duration-300 lg:transform-none overflow-y-auto
-        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        {/* Header */}
-        <div className="p-6 border-b border-white/20">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">Фильтры</h2>
-            {onClose && (
-              <button 
-                onClick={onClose}
-                className="lg:hidden text-white hover:text-gray-300"
-              >
-                <i className="fas fa-times text-xl"></i>
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {/* Search */}
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">
-              Поиск товаров
-            </label>
-            <form onSubmit={handleSearchSubmit} className="space-y-2">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Введите название..."
-                  value={tempSearchQuery}
-                  onChange={(e) => setTempSearchQuery(e.target.value)}
-                  onKeyPress={handleSearchKeyPress}
-                  className="w-full px-4 py-2 pl-10 pr-12 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-300 backdrop-blur-sm"
-                />
-                <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300"></i>
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-white transition-colors"
-                >
-                  <i className="fas fa-arrow-right"></i>
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Categories */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Категории</h3>
-            <div className="space-y-2">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedCategory === 'all'}
-                  onChange={() => setSelectedCategory('all')}
-                  className="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500 focus:ring-2"
-                />
-                <span className="text-gray-300">Все категории</span>
-              </label>
-              
-              {categories.map((category) => (
-                <div key={category.id}>
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-3 cursor-pointer flex-1">
-                      <input
-                        type="checkbox"
-                        checked={isCategorySelected(category.id)}
-                        onChange={() => handleCategoryChange(category.id)}
-                        className="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500 focus:ring-2"
-                      />
-                      <span className="text-gray-300">{category.name}</span>
-                    </label>
-                    {category.children && category.children.length > 0 && (
-                      <button
-                        onClick={() => toggleCategory(category.id)}
-                        className="p-2 text-gray-300 hover:text-white"
-                      >
-                        <i className={`fas fa-chevron-${expandedCategories.includes(category.id) ? 'down' : 'right'} text-sm`}></i>
-                      </button>
-                    )}
-                  </div>
-                  
-                  {/* Subcategories */}
-                  {category.children && expandedCategories.includes(category.id) && (
-                    <div className="ml-6 mt-2 space-y-2">
-                      {category.children.map((subcategory) => (
-                        <label key={subcategory.id} className="flex items-center gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={isCategorySelected(subcategory.id)}
-                            onChange={() => handleCategoryChange(subcategory.id)}
-                            className="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500 focus:ring-2"
-                          />
-                          <span className="text-gray-400 text-sm">{subcategory.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Brands */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Бренды</h3>
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedBrand === 'all'}
-                  onChange={() => setSelectedBrand('all')}
-                  className="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500 focus:ring-2"
-                />
-                <span className="text-gray-300">Все бренды</span>
-              </label>
-              
-              {visibleBrands.map((brand) => (
-                <label key={brand.id} className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isBrandSelected(brand.id)}
-                    onChange={() => handleBrandChange(brand.id)}
-                    className="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center flex-shrink-0">
-                    <Image
-                      src={brand.logo}
-                      alt={brand.name}
-                      width={24}
-                      height={24}
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="text-sm text-gray-300">{brand.name}</span>
-                </label>
-              ))}
-
-              {hasMoreBrands && (
-                <button
-                  type="button"
-                  onClick={() => setBrandsModalOpen(true)}
-                  className="text-xs text-blue-300 hover:text-blue-100 underline mt-2"
-                >
-                  Показать все бренды
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Price Range */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Цена, ₽</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm text-gray-300">
-                <span>{priceRange.min.toLocaleString()} ₽</span>
-                <span>{priceRange.max.toLocaleString()} ₽</span>
-              </div>
-              
-              <div className="relative h-8">
-                {/* Background track */}
-                <div className="absolute top-3 w-full h-2 bg-gray-600 rounded-lg"></div>
-                
-                {/* Active range */}
-                <div 
-                  className="absolute top-3 h-2 bg-blue-500 rounded-lg"
-                  style={{
-                    left: actualPriceRange.max > actualPriceRange.min 
-                      ? `${((priceRange.min - actualPriceRange.min) / (actualPriceRange.max - actualPriceRange.min)) * 100}%`
-                      : '0%',
-                    width: actualPriceRange.max > actualPriceRange.min 
-                      ? `${((priceRange.max - priceRange.min) / (actualPriceRange.max - actualPriceRange.min)) * 100}%`
-                      : '100%'
-                  }}
-                />
-                
-                {/* Min range slider */}
-                <input
-                  type="range"
-                  min={actualPriceRange.min}
-                  max={actualPriceRange.max}
-                  step="1000"
-                  value={priceRange.min}
-                  onChange={(e) => {
-                    const newMin = parseInt(e.target.value)
-                    if (newMin <= priceRange.max) {
-                      setPriceRange({ ...priceRange, min: newMin })
-                    }
-                  }}
-                  className="absolute w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer slider-thumb z-10"
-                  style={{ top: '12px' }}
-                />
-                
-                {/* Max range slider */}
-                <input
-                  type="range"
-                  min={actualPriceRange.min}
-                  max={actualPriceRange.max}
-                  step="1000"
-                  value={priceRange.max}
-                  onChange={(e) => {
-                    const newMax = parseInt(e.target.value)
-                    if (newMax >= priceRange.min) {
-                      setPriceRange({ ...priceRange, max: newMax })
-                    }
-                  }}
-                  className="absolute w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer slider-thumb z-10"
-                  style={{ top: '12px' }}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  placeholder="От"
-                  min={actualPriceRange.min}
-                  max={actualPriceRange.max}
-                  value={priceRange.min}
-                  onChange={(e) => setPriceRange({ ...priceRange, min: parseInt(e.target.value) || actualPriceRange.min })}
-                  className="px-3 py-2 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-300 backdrop-blur-sm text-sm"
-                />
-                <input
-                  type="number"
-                  placeholder="До"
-                  min={actualPriceRange.min}
-                  max={actualPriceRange.max}
-                  value={priceRange.max}
-                  onChange={(e) => setPriceRange({ ...priceRange, max: parseInt(e.target.value) || actualPriceRange.max })}
-                  className="px-3 py-2 bg-white/20 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-gray-300 backdrop-blur-sm text-sm"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Filters */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Дополнительно</h3>
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={inStock}
-                  onChange={(e) => setInStock(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500 focus:ring-2"
-                />
-                <span className="text-gray-300">В наличии</span>
-              </label>
-              
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isNew}
-                  onChange={(e) => setIsNew(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-white/20 border-white/30 rounded focus:ring-blue-500 focus:ring-2"
-                />
-                <span className="text-gray-300">Новинки</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Reset Button */}
-          <div className="pt-4 border-t border-white/20">
-            <Button
-              variant="outline"
-              className="w-full border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
-              onClick={handleReset}
-            >
-              <i className="fas fa-undo mr-2"></i>
-              Сбросить все фильтры
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Модальное окно со всеми брендами */}
-      <Modal
-        isOpen={brandsModalOpen}
-        onClose={() => setBrandsModalOpen(false)}
-        title="Все бренды"
-        className="max-h-[80vh]"
-      >
-        <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-1">
-          <label className="flex items-center gap-3 cursor-pointer mb-2">
+      return null
+    const open = !!categorySearch || expanded.includes(c.id)
+    const key = state.category.includes(c.slug) ? c.slug : c.id
+    return (
+      <li key={c.id} className="py-1">
+        <div className="flex items-start gap-1">
+          <button
+            type="button"
+            className="shrink-0 w-6 min-h-8"
+            disabled={!c.children.length}
+            aria-label={`Подкатегории: ${c.name}`}
+            aria-expanded={open}
+            onClick={() =>
+              setExpanded(v =>
+                v.includes(c.id) ? v.filter(x => x !== c.id) : [...v, c.id]
+              )
+            }
+          >
+            {c.children.length ? (open ? '▾' : '▸') : '·'}
+          </button>
+          <label className="flex min-w-0 flex-1 cursor-pointer gap-2 py-1">
             <input
               type="checkbox"
-              checked={selectedBrand === 'all'}
-              onChange={() => setSelectedBrand('all')}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="mt-1 shrink-0"
+              checked={state.category.includes(key)}
+              onChange={() => toggle('category', key)}
             />
-            <span className="text-gray-800 font-medium text-sm">Все бренды</span>
+            <span className="min-w-0 break-words">
+              {c.name}
+              {categorySearch && path.length > 0 && (
+                <small className="block text-slate-400">
+                  {path.join(' › ')}
+                </small>
+              )}
+            </span>
+            <span className="ml-auto text-slate-400">{c.productsCount}</span>
           </label>
-
-          {brands.map((brand) => (
-            <label key={brand.id} className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isBrandSelected(brand.id)}
-                onChange={() => handleBrandChange(brand.id)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center flex-shrink-0 border border-gray-200">
-                <Image
-                  src={brand.logo}
-                  alt={brand.name}
-                  width={22}
-                  height={22}
-                  className="object-contain"
-                />
-              </div>
-              <span className="text-sm text-gray-800">{brand.name}</span>
-            </label>
-          ))}
         </div>
-      </Modal>
-    </>
+        {open && c.children.length > 0 && (
+          <ul className="ml-3 border-l border-slate-700 pl-1">
+            {c.children.map(child => node(child, [...path, c.name]))}
+          </ul>
+        )}
+      </li>
+    )
+  }
+  return (
+    <div className="space-y-5 text-sm text-slate-100">
+      <label className="block">
+        Поиск товаров
+        <input
+          className={`${field} mt-2`}
+          placeholder="Название или артикул"
+          value={state.search}
+          onChange={e => change({ search: e.target.value })}
+        />
+      </label>
+      <section>
+        <h3 className="font-semibold mb-2">Категории</h3>
+        <input
+          aria-label="Поиск категории"
+          placeholder="Найти категорию"
+          className={field}
+          value={categorySearch}
+          onChange={e => setCategorySearch(e.target.value)}
+        />
+        <p className="text-xs text-slate-400 my-2">
+          Числа учитывают вложенные категории и остальные фильтры.
+        </p>
+        <ul className="max-h-64 overflow-y-auto overscroll-contain pr-1">
+          {categories.map(c => node(c))}
+        </ul>
+        {!categories.some(matches) && (
+          <p className="py-2 text-slate-400">Категории не найдены</p>
+        )}
+      </section>
+      <section>
+        <h3 className="font-semibold mb-2">Бренды</h3>
+        <input
+          aria-label="Поиск бренда"
+          className={field}
+          placeholder="Найти бренд"
+          value={brandSearch}
+          onChange={e => setBrandSearch(e.target.value)}
+        />
+        <div className="max-h-40 overflow-y-auto overscroll-contain mt-2">
+          {brands
+            .filter(
+              b =>
+                (b.productsCount > 0 ||
+                  state.brand.includes(b.id) ||
+                  state.brand.includes(b.slug)) &&
+                b.name.toLowerCase().includes(brandSearch.toLowerCase())
+            )
+            .map(b => {
+              const key = state.brand.includes(b.slug) ? b.slug : b.id
+              return (
+                <label key={b.id} className="flex gap-2 py-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={state.brand.includes(key)}
+                    onChange={() => toggle('brand', key)}
+                  />
+                  {b.name}
+                  <span className="ml-auto text-slate-400">
+                    {b.productsCount}
+                  </span>
+                </label>
+              )
+            })}
+        </div>
+      </section>
+      <section>
+        <h3 className="font-semibold mb-2">Цена, ₽</h3>
+        <div className="flex gap-2">
+          <label className="min-w-0 flex-1">
+            От
+            <input
+              aria-label="Цена от"
+              type="number"
+              min="0"
+              step="any"
+              className={field}
+              placeholder={String(range.minPrice ?? '')}
+              value={state.min}
+              onChange={e => change({ min: e.target.value })}
+            />
+          </label>
+          <label className="min-w-0 flex-1">
+            До
+            <input
+              aria-label="Цена до"
+              type="number"
+              min="0"
+              step="any"
+              className={field}
+              placeholder={String(range.maxPrice ?? '')}
+              value={state.max}
+              onChange={e => change({ max: e.target.value })}
+            />
+          </label>
+        </div>
+        <p className="text-xs text-slate-400 mt-2">
+          {range.minPrice === null
+            ? 'Нет цен для выбранных фильтров'
+            : `Доступно: ${range.minPrice.toLocaleString('ru')}–${range.maxPrice?.toLocaleString('ru')} ₽`}
+        </p>
+        {state.min && state.max && Number(state.min) > Number(state.max) && (
+          <p role="alert" className="text-amber-300">
+            Цена «От» больше цены «До»
+          </p>
+        )}
+      </section>
+      <label className="block">
+        Наличие
+        <select
+          className={`${field} mt-2`}
+          value={state.stock}
+          onChange={e => change({ stock: e.target.value })}
+        >
+          <option value="in">В наличии</option>
+          <option value="all">Все с корректной ценой</option>
+        </select>
+      </label>
+    </div>
   )
 }

@@ -63,7 +63,7 @@ SEED_MANAGER_PASSWORD=manager123
 ```bash
 # В каталоге проекта
 npm run docker:build
-npm run docker:up  # автоматически запустятся migrate -> seed -> web
+npm run docker:up  # автоматически запустятся migrate -> web; seed не запускается
 
 # Healthcheck
 curl http://127.0.0.1:3000/api/health
@@ -117,7 +117,7 @@ npm run docker:build
 docker compose up -d --no-deps web
 # при необходимости перезапустить миграции/сидинг вручную:
 docker compose run --rm migrate
-docker compose run --rm seed
+docker compose --profile tools run --rm seed
 
 # Перезапуск/стоп
 docker compose restart web

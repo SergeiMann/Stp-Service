@@ -73,6 +73,7 @@ export function Header() {
             {/* Cart */}
             <button 
               onClick={() => setIsCartOpen(true)}
+              aria-label="Корзина"
               className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors"
             >
               <i className="fas fa-shopping-cart text-xl"></i>
@@ -87,6 +88,9 @@ export function Header() {
           </div>
 
           {/* Mobile menu button */}
+          <button onClick={() => setIsCartOpen(true)} aria-label="Корзина" className="lg:hidden p-2 text-gray-700">
+            <i className="fas fa-shopping-cart mr-1"></i>{itemCount}
+          </button>
           <button
             className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             onClick={() => setIsMenuOpen(!isMenuOpen)}

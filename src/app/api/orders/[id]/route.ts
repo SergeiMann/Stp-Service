@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getSession } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,10 @@ interface RouteParams {
 
 // Получение конкретного заказа
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const session = getSession()
+  if (!session || !['ADMIN', 'MANAGER'].includes(session.role)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const order = await prisma.order.findUnique({
       where: { id: params.id },
@@ -89,6 +94,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 // Обновление статуса заказа
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  const session = getSession()
+  if (!session || !['ADMIN', 'MANAGER'].includes(session.role)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const body = await request.json()
     const { status, notes } = body
@@ -159,6 +168,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
 // Отмена заказа
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const session = getSession()
+  if (!session || !['ADMIN', 'MANAGER'].includes(session.role)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     // Проверка существования заказа
     const existingOrder = await prisma.order.findUnique({
@@ -196,8 +209,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     
     // Отмена заказа в транзакции
     await prisma.$transaction(async (tx) => {
-      // Возвращаем товары на склад
-      for (const item of existingOrder.items) {
+      const cancelled = await tx.order.updateMany({
+        where: { id: params.id, status: { notIn: ['CANCELLED', 'SHIPPED', 'DELIVERED'] } },
+        data: { status: 'CANCELLED' },
+      })
+      if (cancelled.count === 0) return
+      // Legacy orders reserved stock; new inquiries do not.
+      for (const item of existingOrder.isInquiry ? [] : existingOrder.items) {
         await tx.product.update({
           where: { id: item.productId },
           data: {
@@ -208,13 +226,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         })
       }
       
-      // Обновляем статус заказа
-      await tx.order.update({
-        where: { id: params.id },
-        data: {
-          status: 'CANCELLED'
-        }
-      })
     })
     
     console.log('Заказ отменен:', {
