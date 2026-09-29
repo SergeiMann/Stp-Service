@@ -22,7 +22,7 @@ async function main() {
   const originalFetch = globalThis.fetch
   let phase = 0
   let broken = false
-  const item = (id: string) => ({ itemId: id, itemName: `Test ${id}`, CatalogueLevel1: 90001, CatalogueLevel2: 90001, CatalogueLevel3: 90003, brand: { code: 'TEST', tl_name: 'Test supplier' } })
+  const item = (id: string) => ({ itemId: id, itemName: `Test ${id}`, VendorPartnumber: phase === 0 ? ' MPN-123 ' : 'MPN-456', IsEndUserRequired: phase === 0 ? 1 : 0, CatalogueLevel1: 90001, CatalogueLevel2: 90001, CatalogueLevel3: 90003, brand: { code: 'TEST', tl_name: 'Test supplier' } })
   globalThis.fetch = async (input) => {
     const method = new URL(String(input)).pathname.split('/').pop()!
     if (broken && method === 'items') return Response.json({ OperationStatus: 'OK', Result: null })
@@ -65,6 +65,16 @@ async function main() {
     const product = await prisma.product.findUniqueOrThrow({ where: { externalItemId: 'TEST-A' } })
     assert.equal(product.price, 1100)
     assert.equal(product.stock, 7)
+    assert.equal(product.manufacturerPartNumber, 'MPN-123')
+    assert.equal(product.endUserRequired, true)
+    assert.equal(product.sku, 'TEST-A')
+    const mpnSearch = await (await getProducts(new NextRequest('http://localhost/api/products?search=MPN-123'))).json()
+    assert.equal(mpnSearch.data.pagination.totalProducts, 3)
+    assert.equal(mpnSearch.data.products[0].manufacturerPartNumber, 'MPN-123')
+    await prisma.product.update({ where: { id: product.id }, data: {
+      description: 'Verified description', images: '["/images/test.jpg"]',
+      specifications: { create: { name: 'Interface', value: 'USB' } },
+    } })
     const categories = await (await getCategories(new NextRequest('http://localhost/api/categories'))).json()
     assert.equal(categories.data[0].children[0].children.length, 1)
     const root = await prisma.category.findFirstOrThrow({ where: { externalCatalogId: 90001, externalLevel: 1 } })
@@ -92,6 +102,11 @@ async function main() {
     const updated = await prisma.product.findUniqueOrThrow({ where: { id: product.id } })
     assert.equal(updated.price, 1100)
     assert.equal(updated.stock, 3)
+    assert.equal(updated.manufacturerPartNumber, 'MPN-456')
+    assert.equal(updated.endUserRequired, false)
+    assert.equal(updated.description, 'Verified description')
+    assert.equal(updated.images, '["/images/test.jpg"]')
+    assert.equal(await prisma.productSpecification.count({ where: { productId: product.id } }), 1)
     assert.equal(await prisma.product.count(), 3)
     assert.equal(await prisma.product.count({ where: { isAvailable: true } }), 1)
     console.log('PASS: repeated import, no compounded markup, updated stock, missing/unpriced products unavailable')

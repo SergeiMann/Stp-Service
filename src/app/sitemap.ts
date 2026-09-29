@@ -59,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         orderBy: { sortOrder: 'asc' },
       })
       categoryPages = categories.map((c) => ({
-        url: `${baseUrl}/catalog/${c.slug}`,
+        url: `${baseUrl}/catalog?category=${encodeURIComponent(c.slug)}`,
         lastModified: c.updatedAt,
         changeFrequency: 'weekly' as const,
         priority: 0.7,

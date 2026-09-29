@@ -6,6 +6,8 @@ export interface Product {
   description?: string
   shortDescription?: string
   sku: string
+  manufacturerPartNumber?: string | null
+  endUserRequired?: boolean | null
   price: number
   oldPrice?: number
   isNew: boolean

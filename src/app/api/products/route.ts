@@ -50,6 +50,8 @@ export async function GET(request: NextRequest) {
       description: product.description,
       shortDescription: product.shortDescription,
       sku: product.sku,
+      manufacturerPartNumber: product.manufacturerPartNumber,
+      endUserRequired: product.endUserRequired,
       price: parseFloat(product.price.toString()),
       oldPrice: product.oldPrice
         ? parseFloat(product.oldPrice.toString())

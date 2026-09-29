@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["dom", "dom.iterable", "ES6"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "ES6"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -21,18 +25,29 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/types": ["./src/types"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/data/*": ["./src/data/*"],
-      "@/components/*": ["./src/components/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@/types": [
+        "./src/types"
+      ],
+      "@/lib/*": [
+        "./src/lib/*"
+      ],
+      "@/data/*": [
+        "./src/data/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ]
     }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next-dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

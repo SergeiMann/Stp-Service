@@ -88,6 +88,8 @@ model Product {
   // Привязка к товару ThinkLink
   externalSource    String?   // например, 'THINKLINK'
   externalItemId    String?   @unique
+  manufacturerPartNumber String?
+  endUserRequired   Boolean?
   // Цена и валюта
   price             Float
   oldPrice          Float?

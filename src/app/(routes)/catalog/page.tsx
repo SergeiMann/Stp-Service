@@ -8,6 +8,7 @@ import {
   field,
 } from '@/components/catalog/CatalogSidebar'
 import { ProductGrid } from '@/components/catalog/ProductGrid'
+import { CatalogPagination } from '@/components/catalog/CatalogPagination'
 import { PageLayout } from '@/components/layout/PageLayout'
 import {
   CatalogState,
@@ -39,6 +40,7 @@ export default function CatalogPage() {
   }>({ minPrice: null, maxPrice: null })
   const [result, setResult] = useState<Result | null>(null)
   const [loading, setLoading] = useState(true)
+  const [keyboardNavigation, setKeyboardNavigation] = useState(false)
   const [error, setError] = useState('')
   const [retry, setRetry] = useState(0)
   const dialog = useRef<HTMLDialogElement>(null)
@@ -135,6 +137,7 @@ export default function CatalogPage() {
     nodes.forEach(c => {
       names.set(c.id, c.name)
       names.set(c.slug, c.name)
+      c.aliases?.forEach(id => names.set(id, c.name))
       collect(c.children)
     })
   }
@@ -180,6 +183,14 @@ export default function CatalogPage() {
   const reset = () =>
     change({ ...defaults, limit: state.limit, sort: state.sort })
   return (
+    <div
+      className="catalog-focus-scope"
+      data-keyboard-navigation={keyboardNavigation}
+      onPointerDownCapture={() => setKeyboardNavigation(false)}
+      onKeyDownCapture={event => {
+        if (event.key === 'Tab') setKeyboardNavigation(true)
+      }}
+    >
     <PageLayout
       title="Каталог товаров"
       subtitle="Оборудование для автоматизации бизнеса"
@@ -276,35 +287,11 @@ export default function CatalogPage() {
               result && (
                 <>
                   <ProductGrid products={result.products} />
-                  {result.pagination.totalPages > 1 && (
-                    <nav
-                      aria-label="Страницы каталога"
-                      className="flex flex-wrap justify-center items-center gap-4 text-white my-6"
-                    >
-                      <button
-                        className="p-3 disabled:opacity-40"
-                        disabled={!result.pagination.hasPrevPage}
-                        onClick={() =>
-                          commit({ ...state, page: state.page - 1 })
-                        }
-                      >
-                        ← Назад
-                      </button>
-                      <span>
-                        {result.pagination.currentPage} /{' '}
-                        {result.pagination.totalPages}
-                      </span>
-                      <button
-                        className="p-3 disabled:opacity-40"
-                        disabled={!result.pagination.hasNextPage}
-                        onClick={() =>
-                          commit({ ...state, page: state.page + 1 })
-                        }
-                      >
-                        Далее →
-                      </button>
-                    </nav>
-                  )}
+                  <CatalogPagination
+                    currentPage={result.pagination.currentPage}
+                    totalPages={result.pagination.totalPages}
+                    onPageChange={page => commit({ ...state, page })}
+                  />
                 </>
               )
             )}
@@ -352,5 +339,6 @@ export default function CatalogPage() {
         </dialog>
       )}
     </PageLayout>
+    </div>
   )
 }

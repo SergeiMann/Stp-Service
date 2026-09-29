@@ -18,14 +18,14 @@ const equipmentCategories: EquipmentCategory[] = [
     title: 'Терминалы сбора данных',
     description: 'Мобильные компьютеры для сбора и обработки данных в складской логистике',
     image: '/images/equipment/zebra_mc3300ax.png',
-    link: '/catalog/tsd'
+    link: '/catalog?category=tsd'
   },
   {
     id: 'scanners',
     title: 'Сканеры штрих кода',
     description: 'Ручные и стационарные сканеры для считывания штрих-кодов различных типов',
     image: '/images/equipment/zebra_ds2208-hc.png',
-    link: '/catalog/scanners',
+    link: '/catalog?category=scanners',
     highlighted: true
   },
   {
@@ -33,28 +33,28 @@ const equipmentCategories: EquipmentCategory[] = [
     title: '3D scan определение ВГХ',
     description: 'Системы измерения габаритов и веса для логистических центров',
     image: '/images/equipment/caml-05.png',
-    link: '/catalog/3d-scan'
+    link: '/catalog?category=3d-scan'
   },
   {
     id: 'printers',
     title: 'Принтеры этикеток',
     description: 'Термо- и термотрансферные принтеры для печати этикеток и бирок',
     image: '/images/equipment/Zebra_ZD421C_Ribbon_Cartridge_Desktop_Barcode_Label_Printer_Right_Printing__81871.1754573824.png',
-    link: '/catalog/printers'
+    link: '/catalog?category=printers'
   },
   {
     id: 'wifi',
     title: 'Wi-Fi оборудование',
     description: 'Промышленные точки доступа и сетевое оборудование для склада',
     image: '/images/equipment/Cisco_Access-Point.png',
-    link: '/catalog/wifi'
+    link: '/catalog?category=wifi'
   },
   {
     id: 'refurbished',
     title: 'Восстановленные ТСД',
     description: 'Восстановленные терминалы сбора данных с гарантией качества',
     image: '/images/equipment/Datalogic-Memor-11-Review-featured-image.png',
-    link: '/catalog/refurbished'
+    link: '/catalog?category=refurbished'
   }
 ]
 
@@ -85,7 +85,7 @@ export function EquipmentCategories() {
           {equipmentCategories.map((category) => (
             <Link
               key={category.id}
-              href={{ pathname: '/catalog', query: { category: category.id } }}
+              href={category.link}
             >
               <Card className={`
                 group relative h-full transition-all duration-500 hover:-translate-y-2 cursor-pointer

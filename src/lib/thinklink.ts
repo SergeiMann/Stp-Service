@@ -443,6 +443,8 @@ export async function syncThinkLinkToDb(onProgress?: (message: string) => void):
             description: null,
             shortDescription: null,
             sku: item.itemId,
+            manufacturerPartNumber: item.VendorPartnumber?.trim() || null,
+            endUserRequired: item.IsEndUserRequired == null ? null : Number(item.IsEndUserRequired) === 1,
             externalSource: THINKLINK_SOURCE,
             externalItemId: item.itemId,
             price: bestPrice.price,
@@ -473,6 +475,8 @@ export async function syncThinkLinkToDb(onProgress?: (message: string) => void):
           data: {
             name,
             price: bestPrice.price,
+            manufacturerPartNumber: item.VendorPartnumber?.trim() || null,
+            endUserRequired: item.IsEndUserRequired == null ? null : Number(item.IsEndUserRequired) === 1,
             currency: bestPrice.currency,
             isGplPrice: bestPrice.isGpl,
             isAvailable,

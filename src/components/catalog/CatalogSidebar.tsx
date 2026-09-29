@@ -1,12 +1,14 @@
 'use client'
 import { useState } from 'react'
 import { CatalogState } from '@/lib/catalog-state'
+import { ClearableInput } from './ClearableInput'
 export interface Category {
   id: string
   slug: string
   name: string
   productsCount: number
   children: Category[]
+  aliases?: string[]
 }
 export interface Brand {
   id: string
@@ -46,17 +48,18 @@ export function CatalogSidebar({
       categorySearch &&
       !matches(c) &&
       !state.category.includes(c.id) &&
-      !state.category.includes(c.slug)
+      !state.category.includes(c.slug) &&
+      !c.aliases?.some(id => state.category.includes(id))
     )
       return null
     const open = !!categorySearch || expanded.includes(c.id)
-    const key = state.category.includes(c.slug) ? c.slug : c.id
+    const selectedKeys = [c.id, c.slug, ...(c.aliases ?? [])].filter(id => state.category.includes(id))
     return (
       <li key={c.id} className="py-1">
         <div className="flex items-start gap-1">
           <button
             type="button"
-            className="shrink-0 w-6 min-h-8"
+            className="shrink-0 w-6 min-h-8 rounded focus:!outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400"
             disabled={!c.children.length}
             aria-label={`Подкатегории: ${c.name}`}
             aria-expanded={open}
@@ -72,8 +75,10 @@ export function CatalogSidebar({
             <input
               type="checkbox"
               className="mt-1 shrink-0"
-              checked={state.category.includes(key)}
-              onChange={() => toggle('category', key)}
+              checked={selectedKeys.length > 0}
+              onChange={() => change({ category: selectedKeys.length
+                ? state.category.filter(id => !selectedKeys.includes(id))
+                : [...state.category, c.id] })}
             />
             <span className="min-w-0 break-words">
               {c.name}
@@ -98,8 +103,12 @@ export function CatalogSidebar({
     <div className="space-y-5 text-sm text-slate-100">
       <label className="block">
         Поиск товаров
-        <input
-          className={`${field} mt-2`}
+        <ClearableInput
+          clearLabel="Очистить поиск товаров"
+          aria-label="Поиск товаров"
+          onClear={() => change({ search: '' })}
+          wrapperClassName="mt-2"
+          className={field}
           placeholder="Название или артикул"
           value={state.search}
           onChange={e => change({ search: e.target.value })}
@@ -107,7 +116,9 @@ export function CatalogSidebar({
       </label>
       <section>
         <h3 className="font-semibold mb-2">Категории</h3>
-        <input
+        <ClearableInput
+          clearLabel="Очистить поиск категории"
+          onClear={() => setCategorySearch('')}
           aria-label="Поиск категории"
           placeholder="Найти категорию"
           className={field}
@@ -126,7 +137,9 @@ export function CatalogSidebar({
       </section>
       <section>
         <h3 className="font-semibold mb-2">Бренды</h3>
-        <input
+        <ClearableInput
+          clearLabel="Очистить поиск бренда"
+          onClear={() => setBrandSearch('')}
           aria-label="Поиск бренда"
           className={field}
           placeholder="Найти бренд"
@@ -165,7 +178,9 @@ export function CatalogSidebar({
         <div className="flex gap-2">
           <label className="min-w-0 flex-1">
             От
-            <input
+            <ClearableInput
+              clearLabel="Очистить цену от"
+              onClear={() => change({ min: '' })}
               aria-label="Цена от"
               type="number"
               min="0"
@@ -178,7 +193,9 @@ export function CatalogSidebar({
           </label>
           <label className="min-w-0 flex-1">
             До
-            <input
+            <ClearableInput
+              clearLabel="Очистить цену до"
+              onClear={() => change({ max: '' })}
               aria-label="Цена до"
               type="number"
               min="0"
@@ -209,7 +226,7 @@ export function CatalogSidebar({
           onChange={e => change({ stock: e.target.value })}
         >
           <option value="in">В наличии</option>
-          <option value="all">Все с корректной ценой</option>
+          <option value="all">Все товары</option>
         </select>
       </label>
     </div>

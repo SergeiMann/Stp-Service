@@ -123,6 +123,20 @@ textarea:focus {
   outline-offset: 2px;
 }
 
+/* Catalog clicks should not leave focus outlines or Tailwind rings behind.
+   Track Tab navigation explicitly: text inputs also match :focus-visible
+   after a pointer click in browsers. */
+.catalog-focus-scope :focus {
+  outline: none !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+.catalog-focus-scope[data-keyboard-navigation="true"] :focus-visible {
+  outline: 2px solid #60a5fa !important;
+  outline-offset: -2px !important;
+}
+
 /* Loading animation */
 @keyframes pulse {
   0%, 100% {
