@@ -109,7 +109,7 @@ if netstat -tuln 2>/dev/null | grep -q ":3000 " || ss -tuln 2>/dev/null | grep -
   fi
 fi
 
-# Build & start services (db -> migrate -> seed -> web)
+# Build & start services (db -> migrate -> web + thinklink-sync)
 docker compose up -d --build
 
 echo "[5/7] Wait for web health"

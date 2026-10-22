@@ -8,3 +8,5 @@ node_modules
 !.env.example
 /generated/prisma
 .next-dev/
+*.tsbuildinfo
+.next-dev-server*.log

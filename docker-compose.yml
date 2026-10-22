@@ -31,6 +31,24 @@ services:
       DATABASE_URL: postgresql://stp:${POSTGRES_PASSWORD}@db:5432/stp?schema=public
     command: ["sh","-c","if [ -d prisma/migrations ] && [ $(ls -A prisma/migrations | wc -l) -gt 0 ]; then npx prisma migrate deploy; else echo 'No migrations found, running prisma db push'; npx prisma db push; fi"]
 
+  thinklink-sync:
+    build:
+      context: .
+      target: build
+    restart: unless-stopped
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://stp:${POSTGRES_PASSWORD}@db:5432/stp?schema=public
+    command: ["./node_modules/.bin/tsx", "scripts/sync-thinklink.ts", "--watch"]
+
   seed:
     profiles: ["tools"]
     build:

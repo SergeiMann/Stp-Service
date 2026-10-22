@@ -57,6 +57,7 @@ SEED_MANAGER_PASSWORD=manager123
 В репозитории уже есть `docker-compose.yml` со службами:
 - `db`: PostgreSQL 16 (логин `stp`, пароль `change_me`, БД `stp`). Смените пароль на свой.
 - `web`: Next.js (standalone). Переменные берутся из `.env.production` и `docker-compose.yml`.
+- `thinklink-sync`: загрузка каталога из API ThinkLink после подготовки БД и затем через час после каждой попытки. Требуются `THINKLINK_LOGIN`, `THINKLINK_TOKEN`, `THINKLINK_API_BASE` в `.env.production` и разрешённый в ThinkLink IP сервера. Подробности и просмотр логов — в [THINKLINK.md](THINKLINK.md).
 - `backup`: ежедневные дампы БД в том `pgbackups` (по умолчанию в 03:00).
 
 ## Сборка и запуск

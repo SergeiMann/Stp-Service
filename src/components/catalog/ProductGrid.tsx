@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { ProductImage } from './ProductImage'
 import { useEffect, useRef, useState } from 'react'
 import { Product } from '@/types'
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card'
@@ -60,21 +60,11 @@ export function ProductGrid({ products }: { products: Product[] }) {
           return (
             <Card key={product.id} hover className={`h-full flex rounded-xl overflow-hidden text-slate-900 ${view === 'list' ? 'flex-col md:flex-row md:items-center' : 'flex-col'}`}>
               <CardHeader className={`p-5 ${view === 'list' ? 'md:flex-1 md:min-w-0' : ''}`}>
-                <div className={`bg-slate-50 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden ${product.images?.length ? (view === 'list' ? 'hidden' : 'h-40') : 'h-16 border border-dashed border-slate-200'}`}>
-                  {product.images && product.images.length > 0 ? (
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      fill
-                      className="object-contain rounded-lg"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-3 text-slate-400 text-xs">
-                      <i aria-hidden="true" className="fas fa-box-open text-xl"></i>
-                      <span>Фото пока нет</span>
-                    </div>
-                  )}
+                <div className={`bg-white rounded-lg mb-4 flex items-center justify-center relative overflow-hidden ${view === 'list' ? 'h-20' : 'h-40'}`}>
+                  <ProductImage
+                    product={product}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  />
                 </div>
                 <p className="text-xs font-medium text-slate-500 mb-2 truncate">{product.brand?.name || product.category.name}</p>
                 <h3 className={`font-semibold text-base leading-6 break-words ${view === 'grid' ? 'min-h-[4.5rem]' : ''}`}>
@@ -207,17 +197,13 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 ×
               </button>
             </div>
-            {preview.images.length > 0 && (
-              <div className="relative h-64 mb-4">
-                <Image
-                  src={preview.images[imageIndex] || preview.images[0]}
-                  alt={preview.name}
-                  fill
+              <div className="relative h-64 mb-4 flex items-center justify-center">
+                <ProductImage
+                  product={preview}
+                  imageIndex={imageIndex}
                   sizes="(max-width: 768px) 90vw, 720px"
-                  className="object-contain"
                 />
               </div>
-            )}
             {preview.images.length > 1 && (
               <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Фотографии товара">
                 {preview.images.map((src, index) => (
