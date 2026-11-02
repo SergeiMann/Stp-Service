@@ -1,12 +1,13 @@
 import { Metadata } from 'next'
-import { generateSEO } from '@/lib/utils'
-import { SITE_CONFIG } from '@/lib/constants'
-import { PageLayout } from '@/components/layout/PageLayout'
-import { Button } from '@/components/ui/Button'
+import { CSSProperties } from 'react'
 import Link from 'next/link'
+import { generateSEO } from '@/lib/utils'
+import { PageLayout, PagePanel } from '@/components/layout/PageLayout'
 import { CertsGallery } from '@/components/sections/CertsGallery'
 import { PartnersGrid } from '@/components/sections/PartnersGrid'
 import { partners as partnersData } from '@/data/partners'
+import { CountUp } from '@/components/motion/CountUp'
+import { Scatter3D, ScatterItem } from '@/components/motion/Scatter3D'
 
 export const metadata: Metadata = {
   ...generateSEO({
@@ -15,156 +16,169 @@ export const metadata: Metadata = {
   })
 }
 
+const reasons: ScatterItem[] = [
+  {
+    id: 'repair',
+    icon: 'fas fa-tools',
+    title: 'Профессиональный ремонт',
+    description: 'Сертифицированные специалисты с многолетним опытом работы с торговым оборудованием',
+    tone: 'bg-[#3d6bff] text-white',
+  },
+  {
+    id: 'speed',
+    icon: 'fas fa-clock',
+    title: 'Быстрые сроки',
+    description: 'Большинство ремонтов выполняем в течение 24 часов благодаря наличию запчастей на складе',
+    tone: 'bg-[#cbf23d] text-[#0b1324]',
+  },
+  {
+    id: 'warranty',
+    icon: 'fas fa-shield-alt',
+    title: 'Гарантия качества',
+    description: 'Предоставляем гарантию на все виды работ и используемые запчасти',
+    tone: 'bg-[#e9eef9] text-[#0b1324]',
+  },
+  {
+    id: 'personal',
+    icon: 'fas fa-handshake',
+    title: 'Индивидуальный подход',
+    description: 'Разрабатываем персональные решения для каждого клиента и типа оборудования',
+    tone: 'bg-[#7b5cff] text-white',
+  },
+  {
+    id: 'stock',
+    icon: 'fas fa-warehouse',
+    title: 'Собственный склад',
+    description: 'Большой ассортимент оригинальных запчастей всегда в наличии',
+    tone: 'bg-[#ff7a1a] text-white',
+  },
+  {
+    id: 'support',
+    icon: 'fas fa-phone-alt',
+    title: 'Техподдержка 24/7',
+    description: 'Круглосуточная консультационная поддержка по всем техническим вопросам',
+    tone: 'bg-[#1a2647] text-white ring-1 ring-white/10',
+  },
+]
+
+const stats = [
+  { to: 15, suffix: '+', label: 'лет опыта', color: 'text-[#5b84ff]' },
+  { to: 5000, suffix: '+', label: 'отремонтированных устройств', color: 'text-[#2ad67c]' },
+  { to: 98, suffix: '%', label: 'успешных ремонтов', color: 'text-[#cbf23d]' },
+  { to: 24, suffix: 'ч', label: 'средний срок ремонта', color: 'text-[#a58bff]' },
+]
+
+const certifications = [
+  {
+    title: 'Авторизованный сервис',
+    icon: 'fas fa-certificate',
+    tone: 'bg-[#3d6bff]',
+    items: ['Zebra Technologies', 'Datalogic', 'Honeywell', 'TSC Printers'],
+  },
+  {
+    title: 'Сертификаты качества',
+    icon: 'fas fa-award',
+    tone: 'bg-[#2ad67c] text-[#062414]',
+    items: ['ISO 9001:2015', 'Сертификат соответствия ГОСТ', 'Лицензия на ремонт оборудования'],
+  },
+]
+
+function Heading({ kicker, lines, className = '' }: { kicker: string; lines: string[]; className?: string }) {
+  return (
+    <div className={`mb-10 md:mb-14 ${className}`}>
+      <div className="mx-kicker mb-5" data-reveal>
+        {kicker}
+      </div>
+      <h2 className="mx-h2" data-reveal="lines">
+        {lines.map((l, i) => (
+          <span key={l} className="mx-ln" style={{ '--i': i } as CSSProperties}>
+            <span>{l}</span>
+          </span>
+        ))}
+      </h2>
+    </div>
+  )
+}
+
 export default function AboutPage() {
   return (
     <PageLayout
       title="О компании СТП-Сервис"
       subtitle="Мы специализируемся на профессиональном ремонте и продаже оборудования для маркировки и сбора данных с 2010 года"
       badge="Профессиональный сервис"
-      backgroundImage="/images/equipment/Datalogic-Memor-11-Review-featured-image.png"
+      heroImage="/images/equipment/honeywell-eda52-500x500.png"
+      heroChips={['с 2010 года', '5000+ устройств', 'Авторизованный сервис']}
     >
-      <div className="container mx-auto px-4 py-16">
-        {/* Основная информация */}
-        <div className="grid lg:grid-cols-2 gap-12 mb-16">
-          <div className="text-white fade-in-left">
-            <h2 className="text-3xl font-bold mb-6 text-blue-300">Наша миссия</h2>
-            <div className="space-y-4 text-gray-300 text-lg">
-              <p>
-                Обеспечить бесперебойную работу оборудования для маркировки наших клиентов 
-                через качественный сервис, профессиональный ремонт и надежные решения.
-              </p>
-              <p>
-                Мы понимаем, что каждая минута простоя оборудования — это потерянная прибыль, 
-                поэтому работаем быстро, качественно и с полной ответственностью.
-              </p>
-            </div>
-          </div>
-
-          <div className="fade-in-right">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <h3 className="text-2xl font-bold text-white mb-4">Ключевые цифры</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-400 mb-2">15+</div>
-                  <div className="text-gray-300 text-sm">лет опыта</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-400 mb-2">5000+</div>
-                  <div className="text-gray-300 text-sm">отремонтированных устройств</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-400 mb-2">98%</div>
-                  <div className="text-gray-300 text-sm">успешных ремонтов</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-400 mb-2">24ч</div>
-                  <div className="text-gray-300 text-sm">средний срок ремонта</div>
-                </div>
+      <div className="mx-panels">
+        {/* ---------- Миссия и цифры ---------- */}
+        <PagePanel tone="dark">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <div>
+              <Heading kicker="Наша миссия" lines={['Оборудование', 'должно работать']} className="!mb-8" />
+              <div className="space-y-4 text-lg leading-relaxed text-[#a9b4cf]" data-reveal>
+                <p>
+                  Обеспечить бесперебойную работу оборудования для маркировки наших клиентов через качественный сервис,
+                  профессиональный ремонт и надежные решения.
+                </p>
+                <p>
+                  Мы понимаем, что каждая минута простоя оборудования — это потерянная прибыль, поэтому работаем быстро,
+                  качественно и с полной ответственностью.
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Преимущества */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">Почему выбирают нас</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: 'fas fa-tools',
-                title: 'Профессиональный ремонт',
-                description: 'Сертифицированные специалисты с многолетним опытом работы с торговым оборудованием'
-              },
-              {
-                icon: 'fas fa-clock',
-                title: 'Быстрые сроки',
-                description: 'Большинство ремонтов выполняем в течение 24 часов благодаря наличию запчастей на складе'
-              },
-              {
-                icon: 'fas fa-shield-alt',
-                title: 'Гарантия качества',
-                description: 'Предоставляем гарантию на все виды работ и используемые запчасти'
-              },
-              {
-                icon: 'fas fa-handshake',
-                title: 'Индивидуальный подход',
-                description: 'Разрабатываем персональные решения для каждого клиента и типа оборудования'
-              },
-              {
-                icon: 'fas fa-warehouse',
-                title: 'Собственный склад',
-                description: 'Большой ассортимент оригинальных запчастей всегда в наличии'
-              },
-              {
-                icon: 'fas fa-phone-alt',
-                title: 'Техподдержка 24/7',
-                description: 'Круглосуточная консультационная поддержка по всем техническим вопросам'
-              }
-            ].map((item, index) => (
-              <div key={index} className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
-                  <i className={`${item.icon} text-white text-xl`}></i>
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
+              {stats.map((s, i) => (
+                <div key={s.label} className="mx-card p-5 md:p-7" data-reveal="scale" style={{ '--d': `${i * 90}ms` } as CSSProperties}>
+                  <div className={`text-4xl font-bold tracking-tight md:text-5xl ${s.color}`}>
+                    <CountUp to={s.to} suffix={s.suffix} />
+                  </div>
+                  <div className="mt-2 text-sm text-[#a9b4cf]">{s.label}</div>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-gray-300">{item.description}</p>
+              ))}
+            </div>
+          </div>
+        </PagePanel>
+
+        {/* ---------- Почему выбирают нас ---------- */}
+        <PagePanel tone="ink">
+          <Heading kicker="Преимущества" lines={['Почему выбирают нас']} />
+          <Scatter3D items={reasons} />
+        </PagePanel>
+
+        {/* ---------- Сертификации ---------- */}
+        <PagePanel tone="dark">
+          <Heading kicker="Статус" lines={['Сертификации', 'и партнерства']} />
+          <div className="grid gap-4 md:grid-cols-2">
+            {certifications.map((c, i) => (
+              <div key={c.title} className="mx-card p-6 md:p-8" data-reveal="tilt" style={{ '--d': `${i * 120}ms` } as CSSProperties}>
+                <div className="mb-6 flex items-center gap-4">
+                  <span className={`mx-icon ${c.tone}`}>
+                    <i className={c.icon} />
+                  </span>
+                  <h3 className="text-xl font-bold tracking-tight md:text-2xl">{c.title}</h3>
+                </div>
+                <ul className="space-y-3">
+                  {c.items.map((item) => (
+                    <li key={item} className="flex items-center gap-3 text-[#c9d3ee]">
+                      <i className="fas fa-check text-xs text-[#cbf23d]" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
-        </div>
+        </PagePanel>
 
-        {/* Сертификации и партнерства */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">Сертификации и партнерства</h2>
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-bold text-blue-300 mb-4">Авторизованный сервис</h3>
-                <div className="space-y-2 text-gray-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                    <span>Zebra Technologies</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                    <span>Datalogic</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                    <span>Honeywell</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                    <span>TSC Printers</span>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-green-300 mb-4">Сертификаты качества</h3>
-                <div className="space-y-2 text-gray-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span>ISO 9001:2015</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span>Сертификат соответствия ГОСТ</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span>Лицензия на ремонт оборудования</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* ---------- Партнеры ---------- */}
+        <PagePanel tone="ink">
+          <Heading kicker="Бренды" lines={['Наши партнёры']} />
+          <PartnersGrid partners={partnersData} />
+        </PagePanel>
 
-        {/* Партнёры */}
-        <PartnersGrid partners={partnersData} />
-
-        {/* Витрина сертификатов */}
-        <section id="certs" className="mb-16">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">Наши сертификаты</h2>
+        {/* ---------- Сертификаты ---------- */}
+        <PagePanel tone="dark" id="certs">
+          <Heading kicker="Документы" lines={['Наши сертификаты']} />
           <CertsGallery
             images={[
               'astra.jpg',
@@ -178,31 +192,32 @@ export default function AboutPage() {
               'zebra.jpg',
             ]}
           />
-        </section>
+        </PagePanel>
 
-        
-
-        {/* CTA секция */}
-        <div className="text-center">
-          <div className="bg-gradient-to-r from-blue-600/20 to-green-600/20 backdrop-blur-sm rounded-xl p-8 border border-blue-400/30">
-            <h2 className="text-3xl font-bold text-white mb-4">Готовы начать сотрудничество?</h2>
-            <p className="text-xl text-gray-300 mb-8">
-              Свяжитесь с нами для обсуждения ваших потребностей
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contacts">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Связаться с нами
-                </Button>
-              </Link>
-              <Link href="/services">
-                <Button variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
+        {/* ---------- Связаться ---------- */}
+        <PagePanel tone="lime">
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+            <h2 className="mx-h2 lg:col-span-7" data-reveal="lines">
+              <span className="mx-ln" style={{ '--i': 0 } as CSSProperties}>
+                <span>Готовы начать</span>
+              </span>
+              <span className="mx-ln" style={{ '--i': 1 } as CSSProperties}>
+                <span>сотрудничество?</span>
+              </span>
+            </h2>
+            <div className="lg:col-span-5" data-reveal="right">
+              <p className="mb-6 text-lg text-[#0b1324]/75">Свяжитесь с нами для обсуждения ваших потребностей</p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link href="/contacts" className="mx-btn mx-btn-dark" data-magnet>
+                  Связаться с нами <i className="fas fa-arrow-right text-sm" />
+                </Link>
+                <Link href="/#services" className="mx-btn bg-white text-[#0b1324]" data-magnet>
                   Посмотреть услуги
-                </Button>
-              </Link>
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </PagePanel>
       </div>
     </PageLayout>
   )

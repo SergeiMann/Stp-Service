@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { PageLayout } from '@/components/layout/PageLayout'
+import { PageLayout, PagePanel } from '@/components/layout/PageLayout'
 import { generateSEO } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -17,11 +17,11 @@ export default function PrivacyPage() {
       title="Политика конфиденциальности"
       subtitle="Политика в отношении обработки персональных данных"
       badge="Актуальная версия"
-      backgroundImage="/images/equipment/trade-and-warehouse-equipment-1.webp"
     >
-      <div className="container mx-auto px-4 py-16 text-gray-200">
-        <div className="prose prose-invert max-w-none">
-          <p className="text-sm text-gray-400">Дата обновления: 18.11.2025</p>
+      <div className="mx-panels">
+        <PagePanel tone="dark">
+        <div className="mx-prose">
+          <p className="mx-badge !mt-0">Дата обновления: 18.11.2025</p>
 
           <h2>1. Общие положения</h2>
           <p>
@@ -35,7 +35,6 @@ export default function PrivacyPage() {
             Политика применяется ко всей информации, которую Оператор может
             получить о посетителях веб‑сайта{' '}
             <a
-              className="text-blue-300 underline"
               href="https://stp-service.com"
               target="_blank"
               rel="noopener noreferrer"
@@ -88,7 +87,7 @@ export default function PrivacyPage() {
             <li>
               Отзывать согласие на обработку персональных данных путем
               направления уведомления на e‑mail{' '}
-              <a className="text-blue-300 underline" href="mailto:support@stp-service.com">
+              <a href="mailto:support@stp-service.com">
                 support@stp-service.com
               </a>
               .
@@ -147,7 +146,7 @@ export default function PrivacyPage() {
             если иной срок не установлен договором или законодательством РФ.
             Субъект вправе в любой момент отозвать согласие на обработку
             персональных данных, направив уведомление на e‑mail{' '}
-            <a className="text-blue-300 underline" href="mailto:support@stp-service.com">
+            <a href="mailto:support@stp-service.com">
               support@stp-service.com
             </a>
             .
@@ -173,7 +172,6 @@ export default function PrivacyPage() {
           <p>
             Актуальная версия Политики размещена по адресу:{' '}
             <a
-              className="text-blue-300 underline"
               href="https://stp-service.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
@@ -189,11 +187,12 @@ export default function PrivacyPage() {
           <p>
             ООО «СТП‑Сервис»<br />
             E‑mail:{' '}
-            <a className="text-blue-300 underline" href="mailto:support@stp-service.com">
+            <a href="mailto:support@stp-service.com">
               support@stp-service.com
             </a>
           </p>
         </div>
+        </PagePanel>
       </div>
     </PageLayout>
   )

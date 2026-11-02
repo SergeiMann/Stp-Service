@@ -48,7 +48,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
       <div className="flex justify-end gap-1 mb-4" role="group" aria-label="Вид каталога">
         {(['grid', 'list'] as const).map(mode => (
           <button key={mode} type="button" aria-pressed={view === mode} onClick={() => setView(mode)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium ${view === mode ? 'bg-white text-slate-900' : 'text-slate-200 hover:bg-white/10'}`}>
+            className={`rounded-full px-4 py-2 text-sm font-medium ${view === mode ? 'bg-white text-slate-900' : 'text-slate-200 hover:bg-white/10'}`}>
             {mode === 'grid' ? 'Карточки' : 'Список'}
           </button>
         ))}
@@ -58,7 +58,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
           const quantity =
             items.find(item => item.product.id === product.id)?.quantity ?? 0
           return (
-            <Card key={product.id} hover className={`h-full flex rounded-xl overflow-hidden text-slate-900 ${view === 'list' ? 'flex-col md:flex-row md:items-center' : 'flex-col'}`}>
+            <Card key={product.id} hover className={`h-full flex rounded-[24px] border-0 overflow-hidden text-slate-900 transition-transform duration-300 hover:-translate-y-1 ${view === 'list' ? 'flex-col md:flex-row md:items-center' : 'flex-col'}`}>
               <CardHeader className={`p-5 ${view === 'list' ? 'md:flex-1 md:min-w-0' : ''}`}>
                 <div className={`bg-white rounded-lg mb-4 flex items-center justify-center relative overflow-hidden ${view === 'list' ? 'h-20' : 'h-40'}`}>
                   <ProductImage
@@ -68,7 +68,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 </div>
                 <p className="text-xs font-medium text-slate-500 mb-2 truncate">{product.brand?.name || product.category.name}</p>
                 <h3 className={`font-semibold text-base leading-6 break-words ${view === 'grid' ? 'min-h-[4.5rem]' : ''}`}>
-                  <button type="button" className="text-left line-clamp-3 hover:text-blue-600 focus-visible:outline-blue-600" onClick={() => setPreview(product)} title={product.name}>{product.name}</button>
+                  <button type="button" className="text-left line-clamp-3 hover:text-[#3d6bff] focus-visible:outline-[#3d6bff]" onClick={() => setPreview(product)} title={product.name}>{product.name}</button>
                 </h3>
                 <p className="text-xs text-slate-500 mt-3 break-all">{product.manufacturerPartNumber ? `Артикул: ${product.manufacturerPartNumber}` : `Код товара: ${product.sku}`}</p>
                 <p className="text-sm text-gray-600 line-clamp-2">
@@ -177,7 +177,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
           onClick={event => {
             if (event.target === event.currentTarget) setPreview(null)
           }}
-          className="w-[min(48rem,calc(100vw-2rem))] max-h-[90dvh] overflow-y-auto rounded-xl p-0 bg-white text-gray-900 backdrop:bg-black/60"
+          className="w-[min(48rem,calc(100vw-2rem))] max-h-[90dvh] overflow-y-auto rounded-[28px] p-0 bg-white text-gray-900 backdrop:bg-[#060a14]/75 backdrop:backdrop-blur-sm"
         >
           <div className="p-6">
             <div className="flex items-start gap-4 mb-4">
@@ -192,7 +192,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 autoFocus
                 aria-label="Закрыть просмотр товара"
                 onClick={() => setPreview(null)}
-                className="shrink-0 h-10 w-10 rounded border border-gray-300 text-2xl hover:bg-gray-100"
+                className="shrink-0 h-10 w-10 rounded-full border border-gray-200 text-2xl hover:bg-gray-100"
               >
                 ×
               </button>
@@ -208,7 +208,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
               <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Фотографии товара">
                 {preview.images.map((src, index) => (
                   <button key={`${src}-${index}`} type="button" aria-pressed={imageIndex === index} onClick={() => setImageIndex(index)}
-                    className={`px-3 py-2 rounded-lg border text-sm ${imageIndex === index ? 'border-blue-600 text-blue-600' : 'border-slate-200'}`}>Фото {index + 1}</button>
+                    className={`px-3 py-2 rounded-lg border text-sm ${imageIndex === index ? 'border-[#3d6bff] text-[#3d6bff]' : 'border-slate-200'}`}>Фото {index + 1}</button>
                 ))}
               </div>
             )}
@@ -250,7 +250,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
             )}
             {!preview.description && preview.specifications.length === 0 && <p className="text-sm text-slate-500 bg-slate-50 rounded-lg p-4 mb-6">Подробные характеристики пока не добавлены. Уточним совместимость и комплектацию при обработке заявки.</p>}
             <div className="flex flex-wrap gap-4 items-center justify-between">
-              <strong className="text-2xl text-blue-600">
+              <strong className="text-2xl text-[#0b1324]">
                 {formatPrice(preview.price)}
               </strong>
               <Button onClick={() => handleAddToCart(preview)}>

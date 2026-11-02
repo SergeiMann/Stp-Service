@@ -9,36 +9,38 @@ interface PartnersGridProps {
   partners: Omit<Brand, 'productsCount'>[]
 }
 
-export function PartnersGrid({ title = 'Наши партнёры', partners }: PartnersGridProps) {
+export function PartnersGrid({ title, partners }: PartnersGridProps) {
   return (
-    <section aria-labelledby="partners-title" className="mb-16">
-      <h2 id="partners-title" className="text-3xl font-bold text-center text-white mb-12">
-        {title}
-      </h2>
+    <section aria-label={title ?? 'Партнёры'}>
+      {title && <h2 className="text-3xl font-bold text-center text-white mb-12">{title}</h2>}
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {partners.map((p) => {
           const scale = (p as any).logoScale ?? 1
           return (
           <div
             key={p.slug}
-            className="group relative rounded-xl ring-1 ring-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] transition-transform duration-300 hover:scale-[1.01]"
+            className="mx-card mx-card-hover group overflow-hidden"
+            data-reveal="scale"
           >
-            <div className="p-6">
-              <div className="relative h-16 w-full mb-4">
+            <div className="p-3 md:p-4">
+              {/* Логотип на белой плашке: фирменные цвета брендов рассчитаны на светлый фон */}
+              <div className="relative mb-4 h-20 w-full overflow-hidden rounded-2xl bg-white md:h-24">
+                <div className="absolute inset-x-5 inset-y-4 md:inset-x-7 md:inset-y-5">
                 <Image
                   src={p.logo ?? '/images/brands/generic-logo.svg'}
                   alt={p.name}
                   fill
                   className="object-contain"
                   style={{ transform: `scale(${scale})` }}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
+                </div>
               </div>
 
-              <div className="text-white font-semibold mb-1">{p.name}</div>
+              <div className="px-1 text-white font-semibold mb-1">{p.name}</div>
               {p.description && (
-                <div className="text-sm text-gray-300 leading-snug">
+                <div className="px-1 pb-1 text-sm text-[#a9b4cf] leading-snug break-words hyphens-auto">
                   {p.description}
                 </div>
               )}

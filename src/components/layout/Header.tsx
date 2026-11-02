@@ -13,7 +13,6 @@ import { useCart } from '@/contexts/CartContext'
 const navigation = [
   { name: 'Главная', href: '/' },
   { name: 'Каталог', href: '/catalog' },
-  { name: 'Услуги', href: '/services' },
   { name: 'О компании', href: '/about' },
   { name: 'Инлокер', href: '/inlocker' },
   { name: 'Контакты', href: '/contacts' },

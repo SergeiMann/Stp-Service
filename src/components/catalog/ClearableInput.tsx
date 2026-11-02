@@ -25,7 +25,7 @@ export function ClearableInput({
           type="button"
           aria-label={clearLabel}
           title={clearLabel}
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded bg-transparent text-slate-400 hover:text-white focus:!outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400"
+          className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-transparent text-slate-400 hover:bg-white/10 hover:text-white focus:!outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#5b84ff]"
           onClick={event => {
             event.preventDefault()
             onClear()

@@ -1,228 +1,111 @@
-'use client'
-
-import { ReactNode } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { SITE_CONFIG } from '@/lib/constants'
-import { Button } from '@/components/ui/Button'
-import { CartModal } from '@/components/ui/CartModal'
-// import { AuthModal } from '@/components/ui/AuthModal'
-import { useCart } from '@/contexts/CartContext'
-// import { useAuth } from '@/contexts/AuthContext'
-import { useState } from 'react'
-
-const navigation = [
-  { name: 'Главная', href: '/' },
-  { name: 'Каталог', href: '/catalog' },
-  { name: 'Услуги', href: '/services' },
-  { name: 'О компании', href: '/about' },
-  { name: 'Инлокер', href: '/inlocker' },
-  { name: 'Контакты', href: '/contacts' },
-]
+import { CSSProperties, ReactNode } from 'react'
+import { MotionRuntime } from '@/components/motion/MotionRuntime'
+import { SiteHeader } from '@/components/motion/SiteHeader'
+import { FloatScene, FloatItem } from '@/components/motion/FloatScene'
 
 interface PageLayoutProps {
   children: ReactNode
   title: string
   subtitle?: string
   badge?: string
-  backgroundImage?: string
+  /** Фото устройства без фона: парит в 3D справа от заголовка */
+  heroImage?: string
+  /** Подписи-плашки, которые парят вокруг фото */
+  heroChips?: string[]
+  /** Короткий первый экран без 3D-сцены — для рабочих страниц вроде каталога */
+  compact?: boolean
   className?: string
-  variant?: 'dark' | 'light'
 }
 
-export function PageLayout({ 
-  children, 
-  title, 
-  subtitle, 
-  badge,
-  backgroundImage = '/images/equipment/trade-and-warehouse-equipment-1.webp',
-  className = '',
-  variant = 'dark'
-}: PageLayoutProps) {
-  const isLight = variant === 'light'
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isCartOpen, setIsCartOpen] = useState(false)
-  // const [isAuthOpen, setIsAuthOpen] = useState(false)
-  const pathname = usePathname()
-  const { itemCount } = useCart()
-  // const { user, logout, loading } = useAuth()
+const CHIP_TONES = ['mx-chip-lime', 'mx-chip-blue', 'mx-chip-white']
+// Плашки держатся внутри колонки сцены, чтобы не вылезать за край экрана
+const CHIP_SPOTS = [
+  { x: 26, y: 14, z: 160, rotate: -7 },
+  { x: 70, y: 74, z: 200, rotate: 6 },
+  { x: 30, y: 90, z: 120, rotate: 3 },
+]
 
-  const navActive = isLight
-    ? 'text-emerald-600 border-b-2 border-emerald-600 pb-1'
-    : 'text-blue-300 border-b-2 border-blue-300 pb-1'
-  const navInactive = isLight ? 'text-gray-700' : 'text-gray-300'
-  const navHover = isLight ? 'hover:text-emerald-700' : 'hover:text-blue-300'
-
+/**
+ * Каркас внутренних страниц в новом дизайне: шапка, первый экран с заголовком
+ * и необязательной 3D-сценой, дальше — содержимое страницы.
+ */
+export function PageLayout({ children, title, subtitle, badge, heroImage, heroChips = [], compact = false, className = '' }: PageLayoutProps) {
+  const showScene = Boolean(heroImage) && !compact
   return (
-    <div className={`min-h-screen ${isLight ? 'bg-gradient-to-b from-white via-emerald-50 to-white' : 'bg-gradient-to-b from-slate-900 via-slate-800 to-slate-700'}` }>
-      {/* Hero Header Section */}
-      <section className={`relative ${isLight ? 'bg-gradient-to-b from-emerald-50 via-white to-emerald-50' : 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800'}` }>
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <div 
-            className="w-full h-full bg-cover bg-center bg-no-repeat opacity-30"
-            style={{
-              backgroundImage: `url('${backgroundImage}')`
-            }}
-          >
-            {/* Multi-layer overlay for better text readability */}
-            <div className={`absolute inset-0 bg-gradient-to-r ${isLight ? 'from-white/90 via-emerald-50/80 to-white/90' : 'from-slate-900/95 via-slate-800/85 to-slate-900/95'}`}></div>
-            <div className={`absolute inset-0 bg-gradient-to-b ${isLight ? 'from-white/70 via-transparent to-white/80' : 'from-slate-900/80 via-transparent to-slate-900/90'}`}></div>
-            
-            {/* Tech Pattern Overlay */}
-            <div className="absolute inset-0 opacity-10">
-              <div className={`absolute top-20 left-20 w-32 h-32 border ${isLight ? 'border-emerald-400/40' : 'border-blue-400/40'} rounded-lg transform rotate-12 animate-pulse`}></div>
-              <div className={`absolute top-40 right-32 w-24 h-24 border ${isLight ? 'border-emerald-400/30' : 'border-blue-400/30'} rounded-full animate-pulse delay-300`}></div>
-              <div className={`absolute bottom-32 left-32 w-40 h-40 border ${isLight ? 'border-emerald-400/35' : 'border-blue-400/35'} rounded-lg transform -rotate-6 animate-pulse delay-700`}></div>
-              <div className={`absolute bottom-20 right-20 w-28 h-28 border ${isLight ? 'border-emerald-400/40' : 'border-blue-400/40'} rounded-full animate-pulse delay-1000`}></div>
-            </div>
-          </div>
-        </div>
+    <div className="mx-root min-h-screen">
+      <MotionRuntime />
+      <SiteHeader />
 
-        {/* Header */}
-        <div className="relative z-30 container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-4">
-              <div className="w-20 h-20 rounded-lg overflow-hidden">
-                <img 
-                  src="/images/brands/logo.png" 
-                  alt="СТП-Сервис"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div>
-                <div className={`font-bold text-3xl ${isLight ? 'text-gray-900' : 'text-white'}`}>СТП-Сервис</div>
-                <div className={`text-base ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>Ремонт и поставка оборудования для маркировки</div>
-              </div>
-            </Link>
+      <section className={`mx-page-hero relative overflow-hidden ${compact ? 'pb-6 pt-28 md:pb-8 md:pt-32' : 'pb-12 pt-32 md:pb-16 md:pt-40'}`}>
+        <div className="mx-grid-bg" />
+        <div className="mx-orb -right-40 -top-20 h-[460px] w-[460px] bg-[#3d6bff]/25" />
+        <div className="mx-orb -left-40 top-40 h-[360px] w-[360px] bg-[#7b5cff]/15" style={{ animationDelay: '-6s' }} />
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`text-sm font-medium transition-colors ${navHover} ${
-                    pathname === item.href ? navActive : navInactive
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Contact Info & CTA */}
-            <div className="hidden lg:flex items-center space-x-6">
-              <div className="text-right">
-                <div className={`font-semibold ${isLight ? 'text-gray-900' : 'text-white'}`}>{SITE_CONFIG.phone}</div>
-                <div className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>пн-пт 10:00-19:00</div>
-              </div>
-              
-              {/* Cart */}
-              <button 
-                onClick={() => setIsCartOpen(true)}
-                aria-label="Корзина"
-                className={`relative p-2 ${isLight ? 'text-gray-700 hover:text-emerald-700' : 'text-gray-300 hover:text-blue-300'} transition-colors`}
-              >
-                <i className="fas fa-shopping-cart text-xl"></i>
-                {itemCount > 0 && (
-                  <span className={`absolute -top-1 -right-1 ${isLight ? 'bg-emerald-600' : 'bg-blue-600'} text-white text-xs rounded-full w-5 h-5 flex items-center justify-center`}>
-                    {itemCount}
-                  </span>
-                )}
-              </button>
-              
-              {/* Авторизация временно отключена для прод-запуска */}
-            </div>
-
-            {/* Mobile menu button */}
-            <button onClick={() => setIsCartOpen(true)} aria-label="Корзина"
-              className={`lg:hidden p-2 ${isLight ? 'text-gray-800' : 'text-white'}`}>
-              <i className="fas fa-shopping-cart mr-1"></i>{itemCount}
-            </button>
-            <button
-              className={`lg:hidden p-2 rounded-md ${isLight ? 'text-gray-800 hover:text-emerald-700' : 'text-white hover:text-blue-300'}`}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="lg:hidden border-t border-gray-600 py-4 mt-4">
-              <nav className="flex flex-col space-y-4">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`text-base font-medium transition-colors ${isLight ? 'hover:text-emerald-700' : 'hover:text-blue-300'} ${
-                      pathname === item.href ? (isLight ? 'text-emerald-700' : 'text-blue-300') : (isLight ? 'text-gray-700' : 'text-gray-300')
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-                <div className="pt-4 border-t border-gray-600">
-                <div className={`font-semibold ${isLight ? 'text-gray-900' : 'text-white'}`}>{SITE_CONFIG.phone}</div>
-                <div className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-300'} mb-3`}>пн-пт 10:00-19:00</div>
-                  <Button size="sm" className={`w-full ${isLight ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}>
-                    Заказать звонок
-                  </Button>
-                </div>
-              </nav>
-            </div>
-          )}
-        </div>
-
-        {/* Page Title Section */}
-        <div className="relative z-20 container mx-auto px-4 py-16">
-          <div className={`text-center ${isLight ? 'text-emerald-900' : 'text-white'} fade-in-up`}>
+        <div className="relative z-10 mx-auto grid max-w-[1440px] items-center gap-8 px-4 md:px-8 lg:grid-cols-12">
+          <div className={`min-w-0 ${showScene ? 'lg:col-span-8' : 'lg:col-span-10'} 2xl:pl-16`}>
             {badge && (
-              <div className="mb-6">
-                {isLight ? (
-                  <span className="inline-block px-4 py-2 bg-emerald-600/10 backdrop-blur-sm rounded-full text-emerald-700 text-sm font-medium border border-emerald-600/20">
-                    {badge}
-                  </span>
-                ) : (
-                  <span className="inline-block px-4 py-2 bg-blue-600/20 backdrop-blur-sm rounded-full text-blue-300 text-sm font-medium border border-blue-400/30">
-                    {badge}
-                  </span>
-                )}
+              <div className="mb-6" data-load style={{ '--d': '80ms' } as CSSProperties}>
+                <span className="mx-badge">
+                  <span className="mx-dot" /> {badge}
+                </span>
               </div>
             )}
-            <h1 className={`text-4xl md:text-5xl font-bold mb-6 leading-tight ${isLight ? 'text-emerald-900' : ''}`}>
+            <h1 className={`mx-page-title ${compact ? '!text-[clamp(2.1rem,4vw,3.4rem)]' : ''}`} data-load style={{ '--d': '160ms' } as CSSProperties}>
               {title}
             </h1>
             {subtitle && (
-              <p className={`text-lg md:text-xl ${isLight ? 'text-gray-700' : 'text-gray-300'} max-w-3xl mx-auto`}>
+              <p className={`max-w-2xl text-lg leading-relaxed text-[#a9b4cf] ${compact ? 'mt-3' : 'mt-6 md:text-xl'}`} data-load style={{ '--d': '300ms' } as CSSProperties}>
                 {subtitle}
               </p>
             )}
           </div>
+
+          {showScene && (
+            <FloatScene className="hidden h-[340px] lg:col-span-4 lg:block" maxTilt={10}>
+              <FloatItem x={55} y={50} z={60} delay={200} duration={8}>
+                <div className="mx-dev h-[240px] w-[240px]">
+                  <img src={heroImage!} alt="" />
+                </div>
+              </FloatItem>
+              {heroChips.slice(0, CHIP_SPOTS.length).map((chip, i) => (
+                <FloatItem key={chip} {...CHIP_SPOTS[i]} delay={400 + i * 120} duration={6.5 + i}>
+                  <span className={`mx-chip ${CHIP_TONES[i]} text-sm`}>{chip}</span>
+                </FloatItem>
+              ))}
+            </FloatScene>
+          )}
         </div>
       </section>
 
-      {/* Content Section */}
-      <div className={`relative ${isLight ? 'bg-white' : 'bg-gradient-to-b from-slate-800 to-slate-700'} ${className}`}>
-        {children}
-      </div>
-
-      {/* Modals */}
-      <CartModal 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-      />
-      
-      {/* <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} /> */}
+      <div className={`relative pb-6 ${className}`}>{children}</div>
     </div>
+  )
+}
+
+/**
+ * Скругленная панель-раздел внутренних страниц. В отличие от главной панель не откидывается
+ * при прокрутке: на страницах с текстом и формами наклон выглядит как сломанная верстка.
+ */
+export function PagePanel({
+  children,
+  id,
+  tone = 'dark',
+  className = '',
+}: {
+  children: ReactNode
+  id?: string
+  tone?: 'dark' | 'ink' | 'blue' | 'lime'
+  className?: string
+}) {
+  const tones = {
+    dark: 'mx-panel-dark',
+    ink: 'mx-panel-ink',
+    blue: 'mx-panel-blue',
+    lime: 'bg-[#cbf23d] text-[#0b1324]',
+  }
+  return (
+    <section id={id} className={`mx-panel mx-panel-static ${tones[tone]}`} data-spot>
+      <div className={`relative z-10 mx-auto max-w-[1440px] px-5 py-14 md:px-12 md:py-20 lg:pl-24 ${className}`}>{children}</div>
+    </section>
   )
 }

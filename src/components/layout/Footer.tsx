@@ -3,119 +3,91 @@ import { SITE_CONFIG } from '@/lib/constants'
 
 const footerLinks = {
   services: [
-    { name: 'Ремонт сканеров', href: '/services#scanners' },
-    { name: 'Ремонт принтеров', href: '/services#printers' },
-    { name: 'Ремонт ТСД', href: '/services#terminals' },
-    { name: 'Техобслуживание', href: '/services#maintenance' },
+    { name: 'Ремонт ТСД', href: '/#services' },
+    { name: 'Ремонт сканеров', href: '/#services' },
+    { name: 'Ремонт принтеров', href: '/#services' },
+    { name: 'Техобслуживание', href: '/#services' },
+    { name: 'Как проходит ремонт', href: '/#repair' },
   ],
   company: [
     { name: 'О компании', href: '/about' },
-    { name: 'Наши услуги', href: '/services' },
     { name: 'Каталог товаров', href: '/catalog' },
+    { name: 'Инлокер', href: '/inlocker' },
+    { name: 'Сертификаты', href: '/about#certs' },
     { name: 'Контакты', href: '/contacts' },
   ],
-  support: [
-    { name: 'Гарантия', href: '/services#warranty' },
-    { name: 'Доставка', href: '/services#delivery' },
-    { name: 'Оплата', href: '/services#payment' },
-    { name: 'Возврат', href: '/services#return' },
-  ]
 }
 
 export function Footer() {
+  const tel = SITE_CONFIG.phone.replace(/[^+\d]/g, '')
+
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-lg overflow-hidden">
-                <img 
-                  src="/images/brands/logo.png" 
-                  alt={SITE_CONFIG.name}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div>
-                <div className="font-bold text-lg">{SITE_CONFIG.name}</div>
-                <div className="text-sm text-gray-400">{SITE_CONFIG.tagline}</div>
-              </div>
-            </div>
-            <p className="text-gray-400 text-sm mb-4">
-              Профессиональный ремонт и обслуживание оборудования для маркировки и сбора данных. 
-              Более 15 лет опыта работы с ведущими брендами.
+    <footer className="bg-[#060a14] text-white font-[family-name:var(--font-onest)]">
+      <div className="mx-auto max-w-[1440px] px-5 pb-10 pt-14 md:px-12 lg:pl-24">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <Link href="/" className="mb-5 flex items-center gap-3">
+              <img src="/images/brands/logo.png" alt="" className="h-11 w-11 object-contain" />
+              <span>
+                <span className="block text-lg font-bold tracking-tight">{SITE_CONFIG.name}</span>
+                <span className="block text-sm text-[#8e9ab6]">{SITE_CONFIG.tagline}</span>
+              </span>
+            </Link>
+            <p className="max-w-sm text-sm leading-relaxed text-[#8e9ab6]">
+              Профессиональный ремонт и обслуживание оборудования для маркировки и сбора данных. Более 15 лет опыта работы с
+              ведущими брендами.
             </p>
           </div>
 
-          {/* Services */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Услуги</h3>
-            <ul className="space-y-2">
+          <nav aria-label="Услуги" className="lg:col-span-2">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#8e9ab6]">Услуги</h3>
+            <ul className="space-y-2.5">
               {footerLinks.services.map((link) => (
                 <li key={link.name}>
-                  <Link 
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
+                  <Link href={link.href} className="text-sm text-[#c9d3ee] transition-colors hover:text-[#cbf23d]">
                     {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Company */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Компания</h3>
-            <ul className="space-y-2">
+          <nav aria-label="Компания" className="lg:col-span-2">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#8e9ab6]">Компания</h3>
+            <ul className="space-y-2.5">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <Link 
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
+                  <Link href={link.href} className="text-sm text-[#c9d3ee] transition-colors hover:text-[#cbf23d]">
                     {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Contact Info */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Контакты</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center space-x-2">
-                <i className="fas fa-phone text-blue-400"></i>
-                <span className="text-gray-400">{SITE_CONFIG.phone}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <i className="fas fa-envelope text-blue-400"></i>
-                <span className="text-gray-400">{SITE_CONFIG.email}</span>
-              </div>
-              <div className="flex items-start space-x-2">
-                <i className="fas fa-map-marker-alt text-blue-400 mt-1"></i>
-                <span className="text-gray-400">{SITE_CONFIG.address}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <i className="fas fa-clock text-blue-400"></i>
-                <span className="text-gray-400">пн-пт 10:00-19:00; сб, вс — выходной день</span>
-              </div>
-            </div>
+          <div className="sm:col-span-2 lg:col-span-4">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#8e9ab6]">Контакты</h3>
+            <a href={`tel:${tel}`} className="block text-2xl font-bold tracking-tight hover:text-[#cbf23d]">
+              {SITE_CONFIG.phone}
+            </a>
+            <a href={`mailto:${SITE_CONFIG.email}`} className="mt-1 block text-[#c9d3ee] hover:text-[#cbf23d]">
+              {SITE_CONFIG.email}
+            </a>
+            <p className="mt-4 text-sm leading-relaxed text-[#8e9ab6]">
+              {SITE_CONFIG.address}
+              <br />
+              {SITE_CONFIG.workingHours}
+            </p>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-gray-400 text-sm mb-4 md:mb-0">
-           © 2010-{new Date().getFullYear()} {SITE_CONFIG.name}. Все права защищены.
+        <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-[#8e9ab6] md:flex-row md:items-center md:justify-between">
+          <div>
+            © 2010–{new Date().getFullYear()} {SITE_CONFIG.name}. Все права защищены.
           </div>
-          <div className="flex space-x-6 text-sm">
-            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
-              Политика конфиденциальности
-            </Link>
-          </div>
+          <Link href="/privacy" className="transition-colors hover:text-white">
+            Политика конфиденциальности
+          </Link>
         </div>
       </div>
     </footer>

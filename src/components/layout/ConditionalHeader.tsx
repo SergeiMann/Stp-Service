@@ -10,7 +10,6 @@ export function ConditionalHeader() {
   const pagesWithBuiltInHeader = [
     '/',
     '/about',
-    '/services', 
     '/contacts',
     '/checkout',
     '/order-success',

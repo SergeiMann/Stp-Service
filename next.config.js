@@ -5,7 +5,9 @@ const nextConfig = {
   distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   reactStrictMode: true,
   async redirects() {
-    return [
+    // Отдельной страницы услуг больше нет: услуги и цены — в разделе на главной
+    const services = { source: '/services', destination: '/#services', permanent: true }
+    return [services, ...[
       'tsd',
       'scanners',
       '3d-scan',
@@ -16,7 +18,7 @@ const nextConfig = {
       source: `/catalog/${section}`,
       destination: `/catalog?category=${section}`,
       permanent: true,
-    }))
+    }))]
   },
   eslint: {
     // Ускоряем прод-сборку: ESLint не запускается во время build

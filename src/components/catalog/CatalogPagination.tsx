@@ -20,7 +20,7 @@ export function CatalogPagination({
     ])
   ).sort((a, b) => a - b)
   const buttonClass =
-    'inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-2 text-sm tabular-nums transition-colors focus:!outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400 disabled:cursor-default disabled:opacity-35'
+    'inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-sm tabular-nums transition-colors focus:!outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400 disabled:cursor-default disabled:opacity-35'
 
   return (
     <nav aria-label="Страницы каталога" className="my-6 text-white">
@@ -37,11 +37,11 @@ export function CatalogPagination({
         {pages.map((page, index) => (
           <span key={page} className="inline-flex items-center gap-1 sm:gap-2">
             {index > 0 && page - pages[index - 1] > 1 && (
-              <span aria-hidden="true" className="px-1 text-slate-400">…</span>
+              <span aria-hidden="true" className="px-1 text-[#8e9ab6]">…</span>
             )}
             <button
               type="button"
-              className={`${buttonClass} ${page === currentPage ? 'bg-white font-semibold text-slate-900' : 'hover:bg-white/10'}`}
+              className={`${buttonClass} ${page === currentPage ? 'bg-[#cbf23d] font-semibold text-[#0b1324]' : 'hover:bg-white/10'}`}
               aria-current={page === currentPage ? 'page' : undefined}
               aria-label={page === 1 ? 'Первая страница' : page === totalPages ? `Последняя страница, ${page}` : `Страница ${page}`}
               title={page === 1 ? 'Первая страница' : page === totalPages ? 'Последняя страница' : undefined}
@@ -63,7 +63,7 @@ export function CatalogPagination({
           <span className="mr-1 hidden sm:inline">Далее</span>→
         </button>
       </div>
-      <p className="mt-3 text-center text-xs text-slate-400">
+      <p className="mt-3 text-center text-xs text-[#8e9ab6]">
         Страница {currentPage} из {totalPages}
       </p>
     </nav>

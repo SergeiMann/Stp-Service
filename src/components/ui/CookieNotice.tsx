@@ -30,11 +30,11 @@ export function CookieNotice() {
   return (
     <aside
       aria-label="Уведомление об использовании cookie"
-      className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-4xl flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 text-gray-800 shadow-xl sm:flex-row sm:items-center sm:justify-between"
+      className="mx-cookie"
     >
-      <p className="text-sm leading-6">
+      <p className="flex-1 text-sm leading-6">
         На сайте используются cookie для его корректной работы и улучшения сервиса. Продолжая пользоваться сайтом, вы соглашаетесь с их использованием. Подробнее — в{' '}
-        <Link href="/privacy" className="text-blue-700 underline hover:text-blue-800">
+        <Link href="/privacy" className="text-[#cbf23d] underline underline-offset-2 hover:text-white">
           Политике обработки персональных данных
         </Link>
         .
@@ -42,7 +42,7 @@ export function CookieNotice() {
       <button
         type="button"
         onClick={accept}
-        className="shrink-0 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="mx-btn mx-btn-primary h-11 shrink-0 px-6 text-sm"
       >
         Понятно
       </button>

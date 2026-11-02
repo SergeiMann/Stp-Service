@@ -9,16 +9,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const buttonVariants = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-  secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
-  outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white focus:ring-blue-500',
-  ghost: 'text-blue-600 hover:bg-blue-50 focus:ring-blue-500'
+  primary: 'bg-[#cbf23d] text-[#0b1324] hover:bg-[#d9ff52] hover:shadow-[0_10px_30px_-10px_rgba(203,242,61,0.7)] focus:ring-[#cbf23d]',
+  secondary: 'bg-[#0b1324] text-white hover:bg-[#1a2647] focus:ring-[#3d6bff]',
+  outline: 'border-2 border-[#3d6bff] text-[#3d6bff] hover:bg-[#3d6bff] hover:text-white focus:ring-[#3d6bff]',
+  ghost: 'text-[#3d6bff] hover:bg-[#3d6bff]/10 focus:ring-[#3d6bff]'
 }
 
 const buttonSizes = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-base',
-  lg: 'px-8 py-4 text-lg'
+  sm: 'min-h-10 px-4 py-2 text-sm',
+  md: 'min-h-12 px-6 py-3 text-base',
+  lg: 'min-h-14 px-8 py-4 text-lg'
 }
 
 export function Button({ 
@@ -31,7 +31,7 @@ export function Button({
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center rounded-full font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed',
         buttonVariants[variant],
         buttonSizes[size],
         className

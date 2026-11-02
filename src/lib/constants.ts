@@ -29,7 +29,7 @@ export const ROUTES = {
   parts: '/parts',
   repair: '/repair',
   rental: '/rental',
-  services: '/services',
+  services: '/#services',
   about: '/about',
   contacts: '/contacts',
 } as const

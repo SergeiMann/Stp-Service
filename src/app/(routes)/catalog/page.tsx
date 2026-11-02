@@ -10,6 +10,8 @@ import {
 import { ProductGrid } from '@/components/catalog/ProductGrid'
 import { CatalogPagination } from '@/components/catalog/CatalogPagination'
 import { PageLayout } from '@/components/layout/PageLayout'
+import { ClearableInput } from '@/components/catalog/ClearableInput'
+import { equipmentSections } from '@/lib/equipment-sections'
 import {
   CatalogState,
   catalogQuery,
@@ -122,6 +124,26 @@ export default function CatalogPage() {
     setDraft(null)
   }, [key])
   const mobile = draft !== null
+
+  // Поиск применяется после паузы в наборе: иначе каждая буква — запрос к серверу и запись в истории
+  const [searchText, setSearchText] = useState(state.search)
+  const committedSearch = useRef(state.search)
+  useEffect(() => {
+    // Поиск сменился снаружи (сброс фильтров, кнопка «назад») — показываем его в поле
+    if (state.search !== committedSearch.current) {
+      committedSearch.current = state.search
+      setSearchText(state.search)
+    }
+  }, [state.search])
+  useEffect(() => {
+    if (searchText === committedSearch.current) return
+    const timer = setTimeout(() => {
+      committedSearch.current = searchText
+      commit({ ...state, search: searchText, page: 1 })
+    }, 350)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText])
   useEffect(() => {
     if (!mobile) return
     dialog.current?.showModal()
@@ -142,6 +164,7 @@ export default function CatalogPage() {
     })
   }
   collect(categories)
+  equipmentSections.forEach(section => names.set(section.slug, section.name))
   brands.forEach(b => {
     names.set(b.id, b.name)
     names.set(b.slug, b.name)
@@ -163,9 +186,9 @@ export default function CatalogPage() {
       })
     )
   if (state.min)
-    chips.push({ key: 'min', label: `От ${state.min} ₽`, patch: { min: '' } })
+    chips.push({ key: 'min', label: `От ${Number(state.min).toLocaleString('ru')} ₽`, patch: { min: '' } })
   if (state.max)
-    chips.push({ key: 'max', label: `До ${state.max} ₽`, patch: { max: '' } })
+    chips.push({ key: 'max', label: `До ${Number(state.max).toLocaleString('ru')} ₽`, patch: { max: '' } })
   chips.push({
     key: 'stock',
     label: state.stock === 'in' ? 'В наличии' : 'Включая отсутствующие',
@@ -182,6 +205,11 @@ export default function CatalogPage() {
   )
   const reset = () =>
     change({ ...defaults, limit: state.limit, sort: state.sort })
+  // Быстрый выбор: те же шесть разделов, что и на главной (каталог понимает их slug как категорию)
+  const isSectionActive = (slug: string) => state.category.includes(slug)
+  const total = result?.pagination.totalProducts ?? 0
+  const activeFilters =
+    state.category.length + state.brand.length + Number(Boolean(state.min)) + Number(Boolean(state.max))
   return (
     <div
       className="catalog-focus-scope"
@@ -195,102 +223,194 @@ export default function CatalogPage() {
       title="Каталог товаров"
       subtitle="Оборудование для автоматизации бизнеса"
       badge="Каталог оборудования"
-      backgroundImage="/images/equipment/zebra_ds2208-hc.png"
+      compact
     >
-      <div className="container mx-auto px-4 py-8">
-        <button
-          ref={opener}
-          className="lg:hidden mb-4 rounded-lg bg-blue-600 px-5 py-3 text-white"
-          onClick={() => setDraft(state)}
-        >
-          Фильтры
-        </button>
+      <div className="mx-auto max-w-[1440px] px-4 pb-4 md:px-8 2xl:px-16">
+        {/* Панель поиска и сортировки */}
+        <div className="mb-4 rounded-[28px] border border-white/10 bg-[#0b1324] p-3 md:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">Поиск товаров</span>
+              <i aria-hidden="true" className="fas fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#8e9ab6]" />
+              <ClearableInput
+                clearLabel="Очистить поиск товаров"
+                aria-label="Поиск товаров"
+                onClear={() => setSearchText('')}
+                className={`${field} h-12 !rounded-full !pl-11 text-base`}
+                placeholder="Название, артикул или бренд"
+                value={searchText}
+                onChange={e => setSearchText(e.target.value)}
+                onKeyDown={e => {
+                  // Enter применяет поиск сразу, не дожидаясь паузы
+                  if (e.key === 'Enter' && searchText !== committedSearch.current) {
+                    committedSearch.current = searchText
+                    commit({ ...state, search: searchText, page: 1 })
+                  }
+                }}
+              />
+            </label>
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <button
+                ref={opener}
+                className="mx-btn mx-btn-primary h-12 px-5 text-sm lg:!hidden"
+                onClick={() => setDraft(state)}
+              >
+                <i aria-hidden="true" className="fas fa-sliders" /> Фильтры
+                {activeFilters > 0 && <span className="mx-fsec-badge !bg-[#0b1324] !text-[#cbf23d]">{activeFilters}</span>}
+              </button>
+              <select
+                aria-label="Сортировка"
+                className={`${field} h-12 !w-auto !rounded-full pr-8 text-sm`}
+                value={state.sort}
+                onChange={e => change({ sort: e.target.value })}
+              >
+                <option value="name">По названию</option>
+                <option value="price-asc">Сначала дешевле</option>
+                <option value="price-desc">Сначала дороже</option>
+              </select>
+              <select
+                aria-label="Товаров на странице"
+                className={`${field} h-12 !w-auto !rounded-full pr-8 text-sm`}
+                value={state.limit}
+                onChange={e => change({ limit: Number(e.target.value) })}
+              >
+                {[12, 24, 48, 96].map(n => (
+                  <option key={n} value={n}>
+                    по {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Разделы каталога */}
+        <div className="mx-scroll -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-2 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+            <button
+              type="button"
+              className="mx-cat-pill"
+              aria-pressed={state.category.length === 0}
+              onClick={() => change({ category: [] })}
+            >
+              Все разделы
+            </button>
+            {equipmentSections.map(section => (
+              <button
+                key={section.slug}
+                type="button"
+                className="mx-cat-pill"
+                aria-pressed={isSectionActive(section.slug)}
+                onClick={() => change({ category: isSectionActive(section.slug) ? [] : [section.slug] })}
+              >
+                {section.name}
+              </button>
+            ))}
+        </div>
+
         <div className="flex items-start gap-6">
           <aside
             aria-label="Фильтры каталога"
-            className="hidden lg:block sticky top-4 w-72 shrink-0 max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-slate-700 bg-slate-800 p-4"
+            className="mx-scroll hidden lg:block sticky top-24 w-80 shrink-0 max-h-[calc(100dvh-7rem)] overflow-y-auto rounded-[28px] border border-white/10 bg-[#0b1324] p-5"
           >
-            <h2 className="text-white font-semibold text-lg mb-4">Фильтры</h2>
+            <div className="mb-5 flex items-center gap-2">
+              <i aria-hidden="true" className="fas fa-sliders text-[#8e9ab6]" />
+              <h2 className="text-lg font-semibold text-white">Фильтры</h2>
+              {activeFilters > 0 && <span className="mx-fsec-badge">{activeFilters}</span>}
+              <button onClick={reset} className="ml-auto text-sm text-[#cbf23d] hover:text-white">
+                Сбросить
+              </button>
+            </div>
             {sidebar}
-            <button onClick={reset} className="text-blue-300 mt-4 py-2">
-              Сбросить всё
-            </button>
           </aside>
           <main className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-end gap-3 text-white mb-4">
-              <label>
-                Сортировка
-                <select
-                  aria-label="Сортировка"
-                  className={`${field} mt-1`}
-                  value={state.sort}
-                  onChange={e => change({ sort: e.target.value })}
-                >
-                  <option value="name">По названию</option>
-                  <option value="price-asc">Цена по возрастанию</option>
-                  <option value="price-desc">Цена по убыванию</option>
-                </select>
-              </label>
-              <label>
-                На странице
-                <select
-                  aria-label="Товаров на странице"
-                  className={`${field} mt-1`}
-                  value={state.limit}
-                  onChange={e => change({ limit: Number(e.target.value) })}
-                >
-                  {[12, 24, 48, 96].map(n => (
-                    <option key={n}>{n}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <p role="status" className="mr-2 text-sm text-[#a9b4cf]">
+                {loading
+                  ? 'Загрузка товаров…'
+                  : error
+                    ? ''
+                    : `Найдено товаров: ${total.toLocaleString('ru')}`}
+              </p>
               {chips.map(c => (
                 <button
                   key={c.key}
                   aria-label={`Снять фильтр: ${c.label}`}
                   onClick={() => change(c.patch)}
-                  className="max-w-full break-words rounded-full border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white"
+                  className="max-w-full break-words rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white hover:bg-white/10"
                 >
-                  {c.label} ×
+                  {c.label} <span aria-hidden="true" className="ml-1 text-[#8e9ab6]">×</span>
                 </button>
               ))}
-              <button onClick={reset} className="text-blue-300 px-2">
-                Сбросить всё
-              </button>
+              {chips.length > 1 && (
+                <button onClick={reset} className="px-2 text-sm text-[#cbf23d] hover:text-white">
+                  Сбросить всё
+                </button>
+              )}
             </div>
             {facetError && (
-              <p role="alert" className="text-amber-300 mb-3">
+              <p role="alert" className="mb-3 text-amber-300">
                 Не удалось обновить фильтры.{' '}
-                <button onClick={() => setRetry(v => v + 1)}>Повторить</button>
+                <button className="underline" onClick={() => setRetry(v => v + 1)}>Повторить</button>
               </p>
             )}
-            <p role="status" className="text-slate-200 mb-4">
-              {loading
-                ? 'Загрузка товаров…'
-                : error
-                  ? ''
-                  : `Найдено товаров: ${result?.pagination.totalProducts ?? 0}`}
-            </p>
             {error ? (
-              <div role="alert" className="text-white">
-                {error}{' '}
-                <button onClick={() => setRetry(v => v + 1)}>Повторить</button>
+              <div role="alert" className="rounded-[28px] border border-white/10 bg-[#0b1324] p-8 text-center text-white">
+                <p className="mb-4">{error}</p>
+                <button className="mx-btn mx-btn-primary h-11 px-6 text-sm" onClick={() => setRetry(v => v + 1)}>
+                  Повторить
+                </button>
               </div>
             ) : loading ? (
-              <div
-                className="h-64 animate-pulse rounded-xl bg-slate-800"
-                aria-busy="true"
-              />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" aria-busy="true">
+                {Array.from({ length: 6 }, (_, i) => (
+                  <div key={i} className="mx-skeleton h-[26rem]" />
+                ))}
+              </div>
             ) : (
               result && (
                 <>
-                  <ProductGrid products={result.products} />
+                  {result.products.length === 0 ? (
+                    <div className="rounded-[28px] border border-white/10 bg-[#0b1324] px-6 py-12 text-center text-white">
+                      <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full bg-white/5 text-xl text-[#8e9ab6]">
+                        <i aria-hidden="true" className="fas fa-magnifying-glass" />
+                      </div>
+                      <h2 className="mb-2 text-xl font-semibold">
+                        {state.search ? `По запросу «${state.search}» ничего не найдено` : 'Товары не найдены'}
+                      </h2>
+                      <p className="mb-6 text-sm text-[#a9b4cf]">
+                        Проверьте написание или попробуйте искать по артикулу, бренду или типу устройства.
+                      </p>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {state.stock === 'in' && (
+                          <button className="mx-btn mx-btn-primary h-11 px-5 text-sm" onClick={() => change({ stock: 'all' })}>
+                            Искать среди всех товаров
+                          </button>
+                        )}
+                        {activeFilters > 0 && (
+                          <button
+                            className="mx-btn mx-btn-ghost h-11 px-5 text-sm"
+                            onClick={() => change({ category: [], brand: [], min: '', max: '' })}
+                          >
+                            Убрать фильтры
+                          </button>
+                        )}
+                        {state.search && (
+                          <button className="mx-btn mx-btn-ghost h-11 px-5 text-sm" onClick={() => setSearchText('')}>
+                            Очистить поиск
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <ProductGrid products={result.products} />
+                  )}
                   <CatalogPagination
                     currentPage={result.pagination.currentPage}
                     totalPages={result.pagination.totalPages}
-                    onPageChange={page => commit({ ...state, page })}
+                    onPageChange={page => {
+                      commit({ ...state, page })
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
                   />
                 </>
               )
@@ -302,37 +422,37 @@ export default function CatalogPage() {
         <dialog
           ref={dialog}
           onCancel={() => setDraft(null)}
-          className="fixed inset-y-0 left-0 right-auto m-0 h-[100dvh] max-h-none w-[min(24rem,100vw)] max-w-full bg-slate-900 text-white p-0 backdrop:bg-black/60"
+          className="fixed inset-y-0 left-0 right-auto m-0 h-[100dvh] max-h-none w-[min(24rem,100vw)] max-w-full bg-[#0b1324] text-white p-0 backdrop:bg-black/60"
         >
           <div className="flex h-full flex-col">
-            <header className="flex items-center justify-between border-b border-slate-700 p-4">
+            <header className="flex items-center justify-between border-b border-white/10 p-4">
               <h2 className="font-semibold text-lg">Фильтры</h2>
               <button
                 aria-label="Закрыть фильтры"
-                className="p-2"
+                className="grid h-10 w-10 place-items-center rounded-full hover:bg-white/10"
                 onClick={() => setDraft(null)}
               >
-                ✕
+                <i aria-hidden="true" className="fas fa-xmark" />
               </button>
             </header>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+            <div className="mx-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
               {sidebar}
             </div>
-            <footer className="flex gap-3 border-t border-slate-700 bg-slate-900 p-4">
+            <footer className="flex gap-3 border-t border-white/10 bg-[#0b1324] p-4">
               <button
-                className="rounded-lg border border-slate-600 px-4 py-3"
+                className="rounded-full border border-white/20 px-5 py-3"
                 onClick={reset}
               >
                 Сбросить
               </button>
               <button
-                className="flex-1 rounded-lg bg-blue-600 px-4 py-3"
+                className="flex-1 rounded-full bg-[#cbf23d] px-4 py-3 font-semibold text-[#0b1324]"
                 onClick={() => {
                   commit(draft)
                   setDraft(null)
                 }}
               >
-                Применить
+                Показать товары
               </button>
             </footer>
           </div>

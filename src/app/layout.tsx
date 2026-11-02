@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Onest } from "next/font/google";
 import "./globals.css";
+import "@/styles/motion.css";
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import { SITE_CONFIG } from '@/lib/constants'
 import { Header } from '@/components/layout/Header'
@@ -15,6 +16,11 @@ import { BackToTop } from '@/components/ui/BackToTop'
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
+});
+
+const onest = Onest({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-onest",
 });
 
 export const metadata: Metadata = {
@@ -69,15 +75,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <head>
+        {/* Анимации появления включаются только при работающем JS, иначе контент виден сразу */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('mx-js')" }} />
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
         {/* Локальное подключение Font Awesome через импорт выше */}
         <link rel="icon" href="/images/brands/logo.png" type="image/png" sizes="32x32" />
         <link rel="icon" href="/images/brands/logo.png" type="image/png" sizes="96x96" />
         <link rel="apple-touch-icon" href="/images/brands/logo.png" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${onest.variable} font-sans antialiased`}>
         <ToastProvider>
           <AuthProvider>
             <CartProvider>

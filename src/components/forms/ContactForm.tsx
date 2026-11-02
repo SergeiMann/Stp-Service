@@ -179,10 +179,10 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className={className}>
-      <div className="space-y-4">
+      <div className="grid gap-5 sm:grid-cols-2">
         {/* Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="name" className="mx-label">
             Имя *
           </label>
           <input
@@ -190,17 +190,15 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             id="name"
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.name ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`mx-field ${errors.name ? 'is-invalid' : ''}`}
             placeholder="Ваше имя"
           />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+          {errors.name && <p className="mt-1.5 text-sm text-red-400">{errors.name}</p>}
         </div>
 
         {/* Company (optional) */}
         <div>
-          <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="company" className="mx-label">
             Компания
           </label>
           <input
@@ -208,15 +206,15 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             id="company"
             value={formData.company || ''}
             onChange={(e) => handleChange('company', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.company ? 'border-red-500' : 'border-gray-300'}`}
+            className={`mx-field ${errors.company ? 'is-invalid' : ''}`}
             placeholder="Наименование компании (необязательно)"
           />
-          {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company}</p>}
+          {errors.company && <p className="mt-1.5 text-sm text-red-400">{errors.company}</p>}
         </div>
 
         {/* Phone */}
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="phone" className="mx-label">
             Телефон *
           </label>
           <input
@@ -229,17 +227,15 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
                 setFormData(prev => ({ ...prev, phone: '+7 ' }))
               }
             }}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.phone ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`mx-field ${errors.phone ? 'is-invalid' : ''}`}
             placeholder="+7 (999) 123-45-67"
           />
-          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+          {errors.phone && <p className="mt-1.5 text-sm text-red-400">{errors.phone}</p>}
         </div>
 
         {/* Email */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="mx-label">
             Email *
           </label>
           <input
@@ -247,26 +243,22 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             id="email"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`mx-field ${errors.email ? 'is-invalid' : ''}`}
             placeholder="your@email.com"
           />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+          {errors.email && <p className="mt-1.5 text-sm text-red-400">{errors.email}</p>}
         </div>
 
         {/* Equipment */}
-        <div>
-          <label htmlFor="equipment" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="sm:col-span-2">
+          <label htmlFor="equipment" className="mx-label">
             Тип оборудования *
           </label>
           <select
             id="equipment"
             value={formData.equipment}
             onChange={(e) => handleChange('equipment', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.equipment ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`mx-field ${errors.equipment ? 'is-invalid' : ''}`}
           >
             <option value="">Выберите тип оборудования</option>
             <option value="scanner">Сканер штрих-кодов</option>
@@ -275,12 +267,12 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             <option value="tablet">Планшет</option>
             <option value="other">Другое</option>
           </select>
-          {errors.equipment && <p className="text-red-500 text-sm mt-1">{errors.equipment}</p>}
+          {errors.equipment && <p className="mt-1.5 text-sm text-red-400">{errors.equipment}</p>}
         </div>
 
         {/* Message */}
-        <div>
-          <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="sm:col-span-2">
+          <label htmlFor="message" className="mx-label">
             Сообщение *
           </label>
           <textarea
@@ -288,26 +280,24 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
             rows={4}
             value={formData.message}
             onChange={(e) => handleChange('message', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.message ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`mx-field ${errors.message ? 'is-invalid' : ''}`}
             placeholder="Опишите проблему с оборудованием или ваш вопрос"
           />
-          {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
+          {errors.message && <p className="mt-1.5 text-sm text-red-400">{errors.message}</p>}
         </div>
 
         {/* Submit Button */}
-        <label className="flex items-start gap-3 text-sm text-white">
+        <label className="flex items-start gap-3 text-sm text-[#a9b4cf] sm:col-span-2">
           <input
             type="checkbox"
             checked={personalDataConsent}
             onChange={(e) => setPersonalDataConsent(e.target.checked)}
             required
-            className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="mx-check-input"
           />
           <span>
             Согласен(на) на обработку персональных данных в соответствии с{' '}
-            <Link href="/privacy" className="text-blue-300 underline hover:text-blue-200">
+            <Link href="/privacy" className="text-[#cbf23d] underline underline-offset-2 hover:text-white">
               Политикой обработки персональных данных
             </Link>
             .
@@ -317,7 +307,7 @@ export function ContactForm({ onSubmit, className }: ContactFormProps) {
         <Button
           type="submit"
           disabled={isSubmitting || !personalDataConsent}
-          className="w-full"
+          className="w-full sm:col-span-2"
         >
           {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
         </Button>

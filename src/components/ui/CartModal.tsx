@@ -53,14 +53,14 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
           {/* Список товаров */}
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
             {items.map((item) => (
-              <div key={item.product.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+              <div key={item.product.id} className="flex flex-wrap items-center gap-3 sm:flex-nowrap sm:gap-4 p-3 sm:p-4 border border-gray-100 rounded-2xl">
                 {/* Изображение товара */}
-                <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-xl overflow-hidden">
                   {item.product.images?.[0] ? (
                     <img
                       src={item.product.images[0]}
                       alt={item.product.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -70,22 +70,23 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
                 </div>
 
                 {/* Информация о товаре */}
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-medium text-gray-900 truncate">
+                <div className="flex-1 min-w-0 basis-[calc(100%-5rem)] sm:basis-auto">
+                  <h4 className="text-sm font-medium text-gray-900 line-clamp-2" title={item.product.name}>
                     {item.product.name}
                   </h4>
                   <p className="text-sm text-gray-500">
                     {item.product.sku}
                   </p>
-                  <p className="text-sm font-medium text-blue-600">
+                  <p className="text-sm font-medium text-[#3d6bff]">
                     {item.product.price.toLocaleString('ru-RU')} ₽
                   </p>
                 </div>
 
                 {/* Количество */}
-                <div className="flex items-center space-x-2">
+                <div className="ml-auto flex items-center space-x-2 sm:ml-0">
                   <button
                     onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
+                    aria-label={`Уменьшить количество: ${item.product.name}`}
                     className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
                   >
                     <i className="fas fa-minus text-xs text-gray-600"></i>
@@ -95,6 +96,7 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
                   </span>
                   <button
                     onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
+                    aria-label={`Увеличить количество: ${item.product.name}`}
                     className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors"
                   >
                     <i className="fas fa-plus text-xs text-gray-600"></i>
@@ -113,6 +115,7 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
                   onClick={() => removeItem(item.product.id)}
                   className="text-red-500 hover:text-red-700 transition-colors p-1"
                   title="Удалить из корзины"
+                  aria-label={`Удалить из корзины: ${item.product.name}`}
                 >
                   <i className="fas fa-trash text-sm"></i>
                 </button>
@@ -124,13 +127,13 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
           <div className="border-t border-gray-200 pt-4">
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold text-gray-900">Предварительно:</span>
-              <span className="text-xl font-bold text-blue-600">
+              <span className="text-xl font-bold text-[#0b1324]">
                 {total.toLocaleString('ru-RU')} ₽
               </span>
             </div>
 
             {/* Кнопки действий */}
-            <div className="flex space-x-3">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -151,8 +154,8 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
           </div>
 
           {/* Информация */}
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-xs text-blue-700">
+          <div className="mt-4 p-3 bg-[#f1f4fb] rounded-2xl">
+            <p className="text-xs text-slate-600">
               <i className="fas fa-info-circle mr-1"></i>
               Отправьте выбранные позиции и количество. Менеджер свяжется с вами, уточнит наличие и стоимость.
             </p>

@@ -78,7 +78,7 @@ export function CertsGallery({ images }: CertsGalleryProps) {
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
         {images.map((file) => {
           const src = `/images/certs/${file}`
           const label = getLabel(file)
@@ -89,15 +89,15 @@ export function CertsGallery({ images }: CertsGalleryProps) {
               tabIndex={0}
               onClick={() => open(src)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') open(src) }}
-              className="group relative overflow-hidden rounded-xl ring-1 ring-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] transition-transform duration-300 hover:scale-[1.01] cursor-zoom-in"
+              className="mx-card mx-card-hover group overflow-hidden p-2 cursor-zoom-in"
             >
-              <div className="relative w-full aspect-[4/3]">
+              <div className="relative w-full aspect-[4/3] rounded-2xl bg-white/[0.03]">
                 <Image
                   src={src}
                   alt={`Сертификат ${label}`}
                   fill
                   sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-contain rounded-xl"
+                  className="object-contain rounded-2xl"
                 />
               </div>
 
@@ -115,7 +115,7 @@ export function CertsGallery({ images }: CertsGalleryProps) {
               </button>
 
               {/* caption */}
-              <div className="px-3 py-2 text-center text-sm text-gray-200/90">
+              <div className="px-3 py-2.5 text-center text-sm text-[#c9d3ee]">
                 {label}
               </div>
             </div>
