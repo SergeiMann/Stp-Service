@@ -68,7 +68,7 @@ const elements: StackItem[] = [
     title: 'Система ячеек',
     description: '4 типоразмера, USB для зарядки',
     bullets: ['Цветовая индикация, считыватель, экран', 'Питание, Wi‑Fi, до 480 ячеек на систему'],
-    image: '/images/inlocker/4_shkaf.png',
+    image: '/images/equipment/trade-and-warehouse-equipment-1.webp',
     href: '#lockers',
     cta: 'Подробнее',
     bg: 'linear-gradient(150deg, #3be074 0%, #1fbf58 100%)',
@@ -78,7 +78,7 @@ const elements: StackItem[] = [
     title: 'Модуль управления',
     description: 'Отвечает за весь функционал',
     bullets: ['Поддержка объектов, пользователей, прав доступа', 'Интеграция с вашей системой'],
-    image: '/images/inlocker/auth.png',
+    image: '/images/inlocker/inlocker-module.webp',
     href: '#module',
     cta: 'Подробнее',
     bg: '#f1f4f2',
@@ -89,7 +89,7 @@ const elements: StackItem[] = [
     title: 'Личный кабинет',
     description: 'Учёт, распределение, статистика',
     bullets: ['Управление ролями и правами', 'Отчёты, проблемы, ремонт, расходники'],
-    image: '/images/inlocker/adminka.png',
+    image: '/images/inlocker/inlocker-workplace-iso.webp',
     href: '#dashboard',
     cta: 'Подробнее',
     bg: '#1c1f1d',
@@ -181,24 +181,24 @@ export default function InlockerPage() {
           <FloatScene className="h-[440px] sm:h-[540px] lg:col-span-6 lg:h-[660px]">
             <FloatItem x={50} y={50} z={40} delay={150} duration={10}>
               <img
-                src="/images/inlocker/4_shkaf.png"
+                src="/images/inlocker/inlocker-system-16.webp"
                 alt="Система ячеек Инлокер"
-                className="w-[340px] max-w-none drop-shadow-[0_40px_50px_rgba(20,60,35,0.35)]"
+                className="w-[320px] max-w-none drop-shadow-[0_40px_50px_rgba(20,60,35,0.35)] sm:w-[440px]"
               />
             </FloatItem>
             <FloatItem x={16} y={30} z={150} rotate={-6} delay={300} duration={8}>
-              <div className="mx-dev h-[170px] w-[170px] p-3">
-                <img src="/images/inlocker/2_shkaf.png" alt="Ячейки M и L" />
+              <div className="mx-dev h-[180px] w-[150px] p-3">
+                <img src="/images/inlocker/inlocker-cabinet-iso.webp" alt="Шкаф с ячейками и модулем управления" />
               </div>
             </FloatItem>
-            <FloatItem x={84} y={24} z={110} rotate={7} delay={400} duration={8.5}>
-              <div className="mx-dev h-[190px] w-[150px]">
-                <img src="/images/inlocker/auth.png" alt="Модуль управления" />
+            <FloatItem x={78} y={22} z={110} rotate={7} delay={400} duration={8.5}>
+              <div className="mx-dev h-[110px] w-[210px]">
+                <img src="/images/inlocker/inlocker-cells-tsd.webp" alt="ТСД в ячейках на зарядке" className="rounded-xl" />
               </div>
             </FloatItem>
             <FloatItem x={82} y={80} z={200} rotate={-4} delay={500} duration={7}>
-              <div className="mx-dev h-[130px] w-[150px]">
-                <img src="/images/inlocker/1_shkaf.png" alt="Ячейка S" />
+              <div className="mx-dev h-[170px] w-[150px]">
+                <img src="/images/inlocker/inlocker-installed.webp" alt="Инлокер на складе" className="rounded-xl" />
               </div>
             </FloatItem>
 
@@ -373,9 +373,15 @@ export default function InlockerPage() {
                 </div>
               </div>
               <div className="flex justify-center" data-reveal="scale">
-                <Tilt max={12} className="w-full max-w-sm rounded-[32px]">
-                  <div className="mx-dev aspect-[3/4] w-full">
-                    <img src="/images/inlocker/auth.png" alt="Модуль управления" loading="lazy" style={{ transform: 'translateZ(50px)' }} />
+                <Tilt max={12} className="w-full max-w-md rounded-[32px]">
+                  <div className="mx-dev aspect-[4/3] w-full">
+                    <img
+                      src="/images/inlocker/inlocker-module-in-use.webp"
+                      alt="Сотрудник получает ТСД через модуль управления"
+                      loading="lazy"
+                      className="!max-h-[88%] !max-w-[92%] rounded-2xl"
+                      style={{ transform: 'translateZ(50px)' }}
+                    />
                   </div>
                 </Tilt>
               </div>

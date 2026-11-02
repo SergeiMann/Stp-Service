@@ -108,7 +108,7 @@ const equipment: StackItem[] = [
     id: 'refurbished',
     title: 'Восстановленные ТСД',
     description: 'Восстановленные терминалы сбора данных с гарантией качества',
-    image: '/images/equipment/Datalogic-Memor-11-Review-featured-image.png',
+    image: '/images/equipment/datalogic-memor11.webp',
     href: '/catalog?category=refurbished',
     cta: 'Смотреть в каталоге',
     bg: '#e9eef9',
@@ -285,25 +285,22 @@ export default function HomePage() {
 
             <FloatItem x={17} y={22} z={150} rotate={-8} delay={300} duration={7}>
               <div className="mx-dev h-[170px] w-[150px]">
-                <img src="/images/equipment/zebra_mc3300ax.png" alt="Терминал Zebra MC3300" />
+                <img src="/images/equipment/zebra-tc58.webp" alt="Терминал Zebra TC58" />
               </div>
             </FloatItem>
             <FloatItem x={86} y={28} z={40} rotate={9} delay={400} duration={8}>
               <div className="mx-dev h-[150px] w-[130px]">
-                <img src="/images/equipment/zebra_ds2208-hc.png" alt="Сканер Zebra DS2208" />
+                <img src="/images/equipment/honeywell-xenon-1952g.webp" alt="Сканер Honeywell Xenon XP 1952g" />
               </div>
             </FloatItem>
             <FloatItem x={80} y={82} z={170} rotate={-5} delay={500} duration={7.5}>
               <div className="mx-dev h-[150px] w-[180px]">
-                <img
-                  src="/images/equipment/Zebra_ZD421C_Ribbon_Cartridge_Desktop_Barcode_Label_Printer_Right_Printing__81871.1754573824.png"
-                  alt="Принтер этикеток Zebra ZD421"
-                />
+<img src="/images/equipment/zebra-zt411.webp" alt="Промышленный принтер этикеток Zebra ZT411" />
               </div>
             </FloatItem>
             <FloatItem x={16} y={78} z={20} rotate={7} delay={600} duration={8.5}>
               <div className="mx-dev h-[150px] w-[120px]">
-                <img src="/images/equipment/honeywell-eda52-500x500.png" alt="Терминал Honeywell EDA52" />
+                <img src="/images/equipment/zebra-mc9400.webp" alt="Терминал Zebra MC9400" />
               </div>
             </FloatItem>
 

@@ -106,7 +106,7 @@ export default function AboutPage() {
       title="О компании СТП-Сервис"
       subtitle="Мы специализируемся на профессиональном ремонте и продаже оборудования для маркировки и сбора данных с 2010 года"
       badge="Профессиональный сервис"
-      heroImage="/images/equipment/honeywell-eda52-500x500.png"
+      heroImage="/images/equipment/honeywell-ct45xp.webp"
       heroChips={['с 2010 года', '5000+ устройств', 'Авторизованный сервис']}
     >
       <div className="mx-panels">

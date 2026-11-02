@@ -103,7 +103,7 @@ export default function ContactsPage() {
       title="Контакты"
       subtitle="Свяжитесь с нами любым удобным способом"
       badge="Связаться с нами"
-      heroImage="/images/equipment/zebra_mc3300ax.png"
+      heroImage="/images/equipment/urovo-dt50.webp"
       heroChips={['Ответим за 15 минут', SITE_CONFIG.phone]}
     >
       <div className="mx-panels">

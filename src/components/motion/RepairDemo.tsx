@@ -210,11 +210,11 @@ export function RepairDemo() {
             <div className="p-4 md:p-6">
               <div className="flex items-center gap-4 rounded-2xl bg-white p-3 md:p-4 shadow-sm mb-4">
                 <div className="grid place-items-center w-16 h-16 md:w-20 md:h-20 rounded-xl bg-slate-100 shrink-0">
-                  <img src="/images/equipment/zebra_mc3300ax.png" alt="" className="max-h-14 md:max-h-16 w-auto object-contain" />
+                  <img src="/images/equipment/honeywell-eda52-500x500.png" alt="" className="max-h-14 md:max-h-16 w-auto object-contain" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs text-slate-500">Терминал сбора данных</div>
-                  <div className="font-semibold truncate">Zebra MC3300</div>
+                  <div className="font-semibold truncate">Honeywell EDA52</div>
                   <div className="text-xs text-slate-500">Не заряжается</div>
                 </div>
                 <div className="ml-auto hidden sm:flex gap-1">
